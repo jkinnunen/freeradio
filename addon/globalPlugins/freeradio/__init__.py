@@ -54,6 +54,7 @@ def _init_config():
 		"announce_track_changes":"boolean(default=False)",
 		"save_liked_songs":       "boolean(default=False)",
 		"recordings_dir":         "string(default='')",
+		"auto_check_updates":     "boolean(default=True)",
 	}
 
 _init_config()
@@ -113,6 +114,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if config.conf["freeradio"].get("resume_on_start"):
 			wx.CallAfter(self._resume_last_station)
 		wx.CallAfter(self._build_tools_menu)
+		# Check for updates in the background after a short delay
+		if config.conf["freeradio"].get("auto_check_updates", True):
+			t = threading.Timer(15.0, self._check_for_updates, kwargs={"silent": True})
+			t.daemon = True
+			t.start()
 
 		# ICY metadata auto-announce
 		self._icy_last_title   = None
@@ -143,6 +149,19 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		)
 		gui.mainFrame.sysTrayIcon.Bind(
 			wx.EVT_MENU, self._on_menu_settings, item_settings
+		)
+
+		item_update = self._freeradio_menu.Append(
+			wx.ID_ANY,
+			# Translators: Menu item that manually triggers the update check
+			_("Check for &Updates..."),
+		)
+		gui.mainFrame.sysTrayIcon.Bind(
+			wx.EVT_MENU,
+			lambda evt: threading.Thread(
+				target=self._check_for_updates, kwargs={"silent": False}, daemon=True
+			).start(),
+			item_update,
 		)
 
 		self._tools_menu_item = tools_menu.AppendSubMenu(
@@ -961,6 +980,106 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._current_index = index
 		self._play_station(station, announce)
 
+	def _check_for_updates(self, silent=False):
+		"""Fetch the latest release from GitHub and prompt the user if a newer version is available.
+		silent=True: only notify when an update is found (used on startup).
+		silent=False: always report the result (used when triggered manually from menu)."""
+		import json
+		import urllib.request
+		import urllib.error
+		import webbrowser
+
+		API_URL = "https://api.github.com/repos/Surveyor123/freeradio/releases/latest"
+
+		# Retrieve the currently installed addon version via addonHandler
+		current_version = None
+		try:
+			for addon in addonHandler.getAvailableAddons():
+				if addon.manifest.get("name") == "freeradio":
+					current_version = addon.manifest.get("version", "")
+					break
+		except Exception:
+			pass
+
+		# Fetch latest release metadata from GitHub
+		try:
+			req = urllib.request.Request(
+				API_URL,
+				headers={"User-Agent": "freeradio-nvda-addon"},
+			)
+			with urllib.request.urlopen(req, timeout=10) as resp:
+				data = json.loads(resp.read().decode("utf-8"))
+		except urllib.error.HTTPError as e:
+			if e.code == 404:
+				# No releases published on GitHub yet
+				log.warning("FreeRadio: No releases found on GitHub.")
+				if not silent:
+					wx.CallAfter(ui.message, _("No releases found on GitHub yet."))
+			else:
+				log.warning(f"FreeRadio: Update check HTTP error: {e.code}")
+				if not silent:
+					wx.CallAfter(ui.message, _("Update check failed (HTTP %d).") % e.code)
+			return
+		except Exception as e:
+			log.warning(f"FreeRadio: Update check failed: {e}")
+			if not silent:
+				wx.CallAfter(ui.message, _("Update check failed. Please check your internet connection."))
+			return
+
+		latest_tag = data.get("tag_name", "").lstrip("v")
+		release_url = data.get("html_url", "https://github.com/Surveyor123/freeradio/releases/latest")
+
+		# Find the .nvda-addon asset download URL if available
+		download_url = release_url
+		for asset in data.get("assets", []):
+			if asset.get("name", "").endswith(".nvda-addon"):
+				download_url = asset.get("browser_download_url", release_url)
+				break
+
+		if not latest_tag:
+			if not silent:
+				wx.CallAfter(ui.message, _("Could not determine latest version."))
+			return
+
+		# Compare versions as tuples of integers for reliable ordering
+		def _parse(v):
+			try:
+				return tuple(int(x) for x in v.split("."))
+			except Exception:
+				return (0,)
+
+		is_newer = _parse(latest_tag) > _parse(current_version or "0")
+
+		if is_newer:
+			def _prompt():
+				msg = _(
+					"A new version of FreeRadio is available: %s.\n"
+					"You have version %s.\n\n"
+					"Would you like to open the download page?"
+				) % (latest_tag, current_version or _("unknown"))
+				dlg = wx.MessageDialog(
+					gui.mainFrame,
+					msg,
+					_("FreeRadio Update Available"),
+					wx.YES_NO | wx.YES_DEFAULT | wx.ICON_INFORMATION,
+				)
+				if dlg.ShowModal() == wx.ID_YES:
+					webbrowser.open(download_url)
+				dlg.Destroy()
+			wx.CallAfter(_prompt)
+		else:
+			if not silent:
+				def _up_to_date():
+					dlg = wx.MessageDialog(
+						gui.mainFrame,
+						_("FreeRadio is up to date. Installed: %s") % (current_version or _("unknown")),
+						_("FreeRadio Update Check"),
+						wx.OK | wx.ICON_INFORMATION,
+					)
+					dlg.ShowModal()
+					dlg.Destroy()
+				wx.CallAfter(_up_to_date)
+
 	def _check_internet(self, timeout=3):
 		"""Check internet connectivity via a TCP socket to Google DNS.
 		Returns True if reachable, False otherwise.
@@ -1554,6 +1673,20 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		sHelper.addItem(_default_hint)
 		rec_dir_browse.Bind(wx.EVT_BUTTON, self._on_browse_recordings_dir)
 
+		# --- Updates ---
+		self._auto_check_updates = wx.CheckBox(
+			self,
+			label=_("&Automatically check for updates on startup"),
+		)
+		self._auto_check_updates.SetValue(
+			config.conf["freeradio"].get("auto_check_updates", True)
+		)
+		sHelper.addItem(self._auto_check_updates)
+
+		self._check_now_btn = wx.Button(self, label=_("Check for Updates &Now"))
+		self._check_now_btn.Bind(wx.EVT_BUTTON, self._on_check_now)
+		sHelper.addItem(self._check_now_btn)
+
 		# Initial visibility state based on disable_bass setting
 		wx.CallAfter(self._update_bass_controls_visibility)
 		# Load audio devices in the background (only if BASS is enabled)
@@ -1704,6 +1837,24 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			if dlg.ShowModal() == wx.ID_OK:
 				self._ffmpeg_path.SetValue(dlg.GetPath())
 
+	def _on_check_now(self, event):
+		"""Trigger a manual update check from the settings panel."""
+		self._check_now_btn.Disable()
+		self._check_now_btn.SetLabel(_("Checking..."))
+		def _run():
+			for plugin in globalPluginHandler.runningPlugins:
+				if isinstance(plugin, GlobalPlugin):
+					plugin._check_for_updates(silent=False)
+					break
+			wx.CallAfter(self._restore_check_btn)
+		threading.Thread(target=_run, daemon=True).start()
+
+	def _restore_check_btn(self):
+		"""Re-enable the check button after the update check completes."""
+		if self and self._check_now_btn:
+			self._check_now_btn.Enable()
+			self._check_now_btn.SetLabel(_("Check for Updates &Now"))
+
 	def _on_browse_recordings_dir(self, event):
 		current = self._recordings_dir.GetValue().strip()
 		start_dir = current if (current and os.path.isdir(current)) else os.path.join(
@@ -1779,6 +1930,7 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			config.conf["freeradio"]["audio_fx"] = "none"
 		
 		config.conf["freeradio"]["recordings_dir"] = self._recordings_dir.GetValue().strip()
+		config.conf["freeradio"]["auto_check_updates"] = self._auto_check_updates.GetValue()
 
 		for plugin in globalPluginHandler.runningPlugins:
 			if isinstance(plugin, GlobalPlugin):

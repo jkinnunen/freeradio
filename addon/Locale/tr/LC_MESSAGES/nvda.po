@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FreeRadio 2026.3.21\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2026-04-22 07:50+0300\n"
-"PO-Revision-Date: 2026-04-22 07:52+0300\n"
+"POT-Creation-Date: 2026-04-22 18:10+0300\n"
+"PO-Revision-Date: 2026-04-22 18:17+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: tr\n"
@@ -17,103 +17,107 @@ msgstr ""
 "X-Poedit-Basepath: ../../../..\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: addon/globalPlugins/freeradio/__init__.py:98
-#: addon/globalPlugins/freeradio/__init__.py:907
+#: addon/globalPlugins/freeradio/__init__.py:99
+#: addon/globalPlugins/freeradio/__init__.py:926
 #: addon/globalPlugins/freeradio/radioDialog.py:744
 #, python-format
 msgid "Recording started: %s"
 msgstr "Kayıt başladı: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:101
+#: addon/globalPlugins/freeradio/__init__.py:102
 #, python-format
 msgid "Recording finished: %s"
 msgstr "Kayıt tamamlandı: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:133
+#: addon/globalPlugins/freeradio/__init__.py:139
 msgid "Station &Browser...\tCtrl+Win+R"
 msgstr "İstasyon &Tarayıcısı...\tCtrl+Win+R"
 
-#: addon/globalPlugins/freeradio/__init__.py:142
+#: addon/globalPlugins/freeradio/__init__.py:148
 msgid "FreeRadio &Settings..."
 msgstr "&FreeRadio Ayarları..."
 
-#: addon/globalPlugins/freeradio/__init__.py:151
+#: addon/globalPlugins/freeradio/__init__.py:157
+msgid "Check for &Updates..."
+msgstr "&Güncellemeleri kontrol et..."
+
+#: addon/globalPlugins/freeradio/__init__.py:170
 msgid "&FreeRadio"
 msgstr "&FreeRadio"
 
-#: addon/globalPlugins/freeradio/__init__.py:182
+#: addon/globalPlugins/freeradio/__init__.py:201
 #, python-format
 msgid "Recognition failed: %s"
 msgstr "Tanıma başarısız: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:226
+#: addon/globalPlugins/freeradio/__init__.py:245
 msgid "Mirror audio to an additional output device"
 msgstr "Sesi ek bir çıkış cihazına yansıt"
 
-#: addon/globalPlugins/freeradio/__init__.py:227
-#: addon/globalPlugins/freeradio/__init__.py:293
-#: addon/globalPlugins/freeradio/__init__.py:301
-#: addon/globalPlugins/freeradio/__init__.py:378
-#: addon/globalPlugins/freeradio/__init__.py:430
-#: addon/globalPlugins/freeradio/__init__.py:466
-#: addon/globalPlugins/freeradio/__init__.py:502
-#: addon/globalPlugins/freeradio/__init__.py:518
-#: addon/globalPlugins/freeradio/__init__.py:643
-#: addon/globalPlugins/freeradio/__init__.py:655
-#: addon/globalPlugins/freeradio/__init__.py:891
-#: addon/globalPlugins/freeradio/__init__.py:911
-#: addon/globalPlugins/freeradio/__init__.py:1342
+#: addon/globalPlugins/freeradio/__init__.py:246
+#: addon/globalPlugins/freeradio/__init__.py:312
+#: addon/globalPlugins/freeradio/__init__.py:320
+#: addon/globalPlugins/freeradio/__init__.py:397
+#: addon/globalPlugins/freeradio/__init__.py:449
+#: addon/globalPlugins/freeradio/__init__.py:485
+#: addon/globalPlugins/freeradio/__init__.py:521
+#: addon/globalPlugins/freeradio/__init__.py:537
+#: addon/globalPlugins/freeradio/__init__.py:662
+#: addon/globalPlugins/freeradio/__init__.py:674
+#: addon/globalPlugins/freeradio/__init__.py:910
+#: addon/globalPlugins/freeradio/__init__.py:930
+#: addon/globalPlugins/freeradio/__init__.py:1461
 msgid "FreeRadio"
 msgstr "FreeRadio"
 
-#: addon/globalPlugins/freeradio/__init__.py:233
+#: addon/globalPlugins/freeradio/__init__.py:252
 msgid "Audio mirror requires BASS backend. Enable it in FreeRadio settings."
 msgstr ""
 "Ses yansıtması BASS arka ucunu gerektirir. FreeRadio ayarlarında "
 "etkinleştirin."
 
-#: addon/globalPlugins/freeradio/__init__.py:239
+#: addon/globalPlugins/freeradio/__init__.py:258
 msgid "Audio mirror stopped"
 msgstr "Ses yansıtma durduruldu"
 
-#: addon/globalPlugins/freeradio/__init__.py:243
-#: addon/globalPlugins/freeradio/__init__.py:508
-#: addon/globalPlugins/freeradio/__init__.py:903
+#: addon/globalPlugins/freeradio/__init__.py:262
+#: addon/globalPlugins/freeradio/__init__.py:527
+#: addon/globalPlugins/freeradio/__init__.py:922
 #: addon/globalPlugins/freeradio/radioDialog.py:738
 msgid "No station is playing"
 msgstr "Çalan bir istasyon yok"
 
-#: addon/globalPlugins/freeradio/__init__.py:254
+#: addon/globalPlugins/freeradio/__init__.py:273
 msgid "No audio output devices found"
 msgstr "Ses çıkış cihazı bulunamadı"
 
-#: addon/globalPlugins/freeradio/__init__.py:268
+#: addon/globalPlugins/freeradio/__init__.py:287
 msgid "Select additional output device for audio mirror:"
 msgstr "Ses yansıması için ek çıkış cihazını seçin:"
 
-#: addon/globalPlugins/freeradio/__init__.py:269
+#: addon/globalPlugins/freeradio/__init__.py:288
 msgid "Mirror Audio"
 msgstr "Ses Yansıtma"
 
-#: addon/globalPlugins/freeradio/__init__.py:281
+#: addon/globalPlugins/freeradio/__init__.py:300
 #, python-format
 msgid "Mirroring to: %s"
 msgstr "Yansıtılıyor: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:283
+#: addon/globalPlugins/freeradio/__init__.py:302
 #, python-format
 msgid "Could not mirror to: %s"
 msgstr "Yansıtılamadı: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:292
+#: addon/globalPlugins/freeradio/__init__.py:311
 msgid "Open FreeRadio station browser"
 msgstr "FreeRadio istasyon tarayıcısını aç"
 
-#: addon/globalPlugins/freeradio/__init__.py:300
+#: addon/globalPlugins/freeradio/__init__.py:319
 msgid "Pause or resume FreeRadio playback"
 msgstr "FreeRadio oynatmayı duraklat veya devam ettir"
 
-#: addon/globalPlugins/freeradio/__init__.py:354
+#: addon/globalPlugins/freeradio/__init__.py:373
 #: addon/globalPlugins/freeradio/radioDialog.py:1200
 #: addon/globalPlugins/freeradio/radioDialog.py:1485
 #: addon/globalPlugins/freeradio/radioDialog.py:1637
@@ -121,34 +125,34 @@ msgstr "FreeRadio oynatmayı duraklat veya devam ettir"
 msgid "Radio paused"
 msgstr "Radyo duraklatıldı"
 
-#: addon/globalPlugins/freeradio/__init__.py:357
+#: addon/globalPlugins/freeradio/__init__.py:376
 #: addon/globalPlugins/freeradio/radioDialog.py:1489
 msgid "Playing"
 msgstr "Çalıyor"
 
-#: addon/globalPlugins/freeradio/__init__.py:377
+#: addon/globalPlugins/freeradio/__init__.py:396
 msgid "Stop FreeRadio playback"
 msgstr "FreeRadio oynatmayı durdur"
 
 # ── Kayıt sekmesi (radioDialog.py) ───────────────────────────────────────────
-#: addon/globalPlugins/freeradio/__init__.py:390
-#: addon/globalPlugins/freeradio/__init__.py:825
+#: addon/globalPlugins/freeradio/__init__.py:409
+#: addon/globalPlugins/freeradio/__init__.py:844
 #, python-format
 msgid "Instant recording: %s"
 msgstr "Anlık kayıt: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:392
-#: addon/globalPlugins/freeradio/__init__.py:572
-#: addon/globalPlugins/freeradio/__init__.py:585
-#: addon/globalPlugins/freeradio/__init__.py:758
-#: addon/globalPlugins/freeradio/__init__.py:766
-#: addon/globalPlugins/freeradio/__init__.py:827
+#: addon/globalPlugins/freeradio/__init__.py:411
+#: addon/globalPlugins/freeradio/__init__.py:591
+#: addon/globalPlugins/freeradio/__init__.py:604
+#: addon/globalPlugins/freeradio/__init__.py:777
+#: addon/globalPlugins/freeradio/__init__.py:785
+#: addon/globalPlugins/freeradio/__init__.py:846
 #, python-format
 msgid "Scheduled recording: %s"
 msgstr "Planlı kayıt: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:395
-#: addon/globalPlugins/freeradio/__init__.py:830
+#: addon/globalPlugins/freeradio/__init__.py:414
+#: addon/globalPlugins/freeradio/__init__.py:849
 #, python-format
 msgid ""
 "The following recordings are active and will be stopped:\n"
@@ -161,98 +165,98 @@ msgstr ""
 "\n"
 "Radyo durdurulup tüm kayıtlar sonlandırılsın mı?"
 
-#: addon/globalPlugins/freeradio/__init__.py:402
-#: addon/globalPlugins/freeradio/__init__.py:837
+#: addon/globalPlugins/freeradio/__init__.py:421
+#: addon/globalPlugins/freeradio/__init__.py:856
 msgid "Active Recordings"
 msgstr "Aktif Kayıtlar"
 
-#: addon/globalPlugins/freeradio/__init__.py:415
-#: addon/globalPlugins/freeradio/__init__.py:426
-#: addon/globalPlugins/freeradio/__init__.py:850
-#: addon/globalPlugins/freeradio/__init__.py:862
+#: addon/globalPlugins/freeradio/__init__.py:434
+#: addon/globalPlugins/freeradio/__init__.py:445
+#: addon/globalPlugins/freeradio/__init__.py:869
+#: addon/globalPlugins/freeradio/__init__.py:881
 msgid "Radio stopped"
 msgstr "Radyo durduruldu"
 
-#: addon/globalPlugins/freeradio/__init__.py:429
+#: addon/globalPlugins/freeradio/__init__.py:448
 msgid "Play next station"
 msgstr "Sonraki istasyonu çal"
 
-#: addon/globalPlugins/freeradio/__init__.py:465
+#: addon/globalPlugins/freeradio/__init__.py:484
 msgid "Play previous station"
 msgstr "Önceki istasyonu çal"
 
-#: addon/globalPlugins/freeradio/__init__.py:501
+#: addon/globalPlugins/freeradio/__init__.py:520
 msgid "Add currently playing station to favourites"
 msgstr "Çalan istasyonu favorilere ekle"
 
-#: addon/globalPlugins/freeradio/__init__.py:511
+#: addon/globalPlugins/freeradio/__init__.py:530
 #, python-format
 msgid "Already in favourites: %s"
 msgstr "Zaten favorilerde: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:514
+#: addon/globalPlugins/freeradio/__init__.py:533
 #, python-format
 msgid "Added to favourites: %s"
 msgstr "Favorilere eklendi: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:517
+#: addon/globalPlugins/freeradio/__init__.py:536
 msgid "Announce currently playing station. Press twice for full details."
 msgstr "Çalan istasyonu seslendir. Ayrıntılar için iki kez basın."
 
-#: addon/globalPlugins/freeradio/__init__.py:527
-#: addon/globalPlugins/freeradio/__init__.py:708
+#: addon/globalPlugins/freeradio/__init__.py:546
+#: addon/globalPlugins/freeradio/__init__.py:727
 msgid "Radio inactive. Active scheduled recordings:"
 msgstr "Radyo etkin değil. Aktif planlı kayıtlar:"
 
-#: addon/globalPlugins/freeradio/__init__.py:532
-#: addon/globalPlugins/freeradio/__init__.py:713
-#: addon/globalPlugins/freeradio/__init__.py:856
+#: addon/globalPlugins/freeradio/__init__.py:551
+#: addon/globalPlugins/freeradio/__init__.py:732
+#: addon/globalPlugins/freeradio/__init__.py:875
 msgid "FreeRadio is not active"
 msgstr "FreeRadio etkin değil"
 
-#: addon/globalPlugins/freeradio/__init__.py:559
-#: addon/globalPlugins/freeradio/__init__.py:750
+#: addon/globalPlugins/freeradio/__init__.py:578
+#: addon/globalPlugins/freeradio/__init__.py:769
 #, python-format
 msgid "Playing: %(station)s — %(track)s"
 msgstr "Çalıyor: %(station)s — %(track)s"
 
-#: addon/globalPlugins/freeradio/__init__.py:563
-#: addon/globalPlugins/freeradio/__init__.py:754
+#: addon/globalPlugins/freeradio/__init__.py:582
+#: addon/globalPlugins/freeradio/__init__.py:773
 #, python-format
 msgid "Playing: %s"
 msgstr "Çalıyor: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:567
-#: addon/globalPlugins/freeradio/__init__.py:580
-#: addon/globalPlugins/freeradio/__init__.py:756
-#: addon/globalPlugins/freeradio/__init__.py:764
+#: addon/globalPlugins/freeradio/__init__.py:586
+#: addon/globalPlugins/freeradio/__init__.py:599
+#: addon/globalPlugins/freeradio/__init__.py:775
+#: addon/globalPlugins/freeradio/__init__.py:783
 #: addon/globalPlugins/freeradio/radioDialog.py:743
 #, python-format
 msgid "Recording: %s"
 msgstr "Kaydediliyor: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:576
-#: addon/globalPlugins/freeradio/__init__.py:762
+#: addon/globalPlugins/freeradio/__init__.py:595
+#: addon/globalPlugins/freeradio/__init__.py:781
 #, python-format
 msgid "Paused: %s"
 msgstr "Duraklatıldı: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:631
-#: addon/globalPlugins/freeradio/__init__.py:808
+#: addon/globalPlugins/freeradio/__init__.py:650
+#: addon/globalPlugins/freeradio/__init__.py:827
 msgid "No track info available"
 msgstr "Parça bilgisi mevcut değil"
 
-#: addon/globalPlugins/freeradio/__init__.py:635
-#: addon/globalPlugins/freeradio/__init__.py:810
+#: addon/globalPlugins/freeradio/__init__.py:654
+#: addon/globalPlugins/freeradio/__init__.py:829
 msgid "No track metadata found. Starting music recognition…"
 msgstr "Parça meta verisi bulunamadı. Müzik tanıma başlatılıyor…"
 
-#: addon/globalPlugins/freeradio/__init__.py:642
+#: addon/globalPlugins/freeradio/__init__.py:661
 msgid "Increase FreeRadio volume by 10"
 msgstr "FreeRadio sesini 10 artır"
 
-#: addon/globalPlugins/freeradio/__init__.py:650
-#: addon/globalPlugins/freeradio/__init__.py:662
+#: addon/globalPlugins/freeradio/__init__.py:669
+#: addon/globalPlugins/freeradio/__init__.py:681
 #: addon/globalPlugins/freeradio/radioDialog.py:1451
 #: addon/globalPlugins/freeradio/radioDialog.py:1465
 #: addon/globalPlugins/freeradio/radioDialog.py:1543
@@ -261,141 +265,194 @@ msgstr "FreeRadio sesini 10 artır"
 msgid "Volume %d"
 msgstr "Ses %d"
 
-#: addon/globalPlugins/freeradio/__init__.py:654
+#: addon/globalPlugins/freeradio/__init__.py:673
 msgid "Decrease FreeRadio volume by 10"
 msgstr "FreeRadio sesini 10 azalt"
 
-#: addon/globalPlugins/freeradio/__init__.py:887
+#: addon/globalPlugins/freeradio/__init__.py:906
 msgid "Audio device disconnected. Switched to system default."
 msgstr "Ses cihazının bağlantısı kesildi. Sistem varsayılanına geçildi."
 
 # ── Kayıt kısayolu (__init__.py) ──────────────────────────────────────────────
-#: addon/globalPlugins/freeradio/__init__.py:890
+#: addon/globalPlugins/freeradio/__init__.py:909
 msgid "Start or stop instant recording"
 msgstr "Anlık kaydı başlat veya durdur"
 
-#: addon/globalPlugins/freeradio/__init__.py:898
+#: addon/globalPlugins/freeradio/__init__.py:917
 #, python-format
 msgid "Recording stopped: %s"
 msgstr "Kayıt durduruldu: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:900
+#: addon/globalPlugins/freeradio/__init__.py:919
 #: addon/globalPlugins/freeradio/radioDialog.py:735
 msgid "Recording stopped"
 msgstr "Kayıt durduruldu"
 
-#: addon/globalPlugins/freeradio/__init__.py:910
+#: addon/globalPlugins/freeradio/__init__.py:929
 msgid "Open FreeRadio recordings folder"
 msgstr "FreeRadio kayıt klasörünü aç"
 
-#: addon/globalPlugins/freeradio/__init__.py:924
+#: addon/globalPlugins/freeradio/__init__.py:943
 #, python-format
 msgid "Could not open recordings folder: %s"
 msgstr "Kayıt klasörü açılamıyor: %s"
 
+#: addon/globalPlugins/freeradio/__init__.py:1017
+msgid "No releases found on GitHub yet."
+msgstr "GitHub'da henüz bir sürüm bulunamadı."
+
+#: addon/globalPlugins/freeradio/__init__.py:1021
+#, python-format
+msgid "Update check failed (HTTP %d)."
+msgstr "Güncelleme kontrolü başarısız (HTTP %d)."
+
 #: addon/globalPlugins/freeradio/__init__.py:1026
-#: addon/globalPlugins/freeradio/__init__.py:1165
+#| msgid ""
+#| "Could not connect to radio directory. Check your internet connection."
+msgid "Update check failed. Please check your internet connection."
+msgstr ""
+"Güncelleme kontrolü başarısız. Lütfen internet bağlantınızı kontrol edin."
+
+#: addon/globalPlugins/freeradio/__init__.py:1041
+msgid "Could not determine latest version."
+msgstr "En son sürüm belirlenemedi."
+
+#: addon/globalPlugins/freeradio/__init__.py:1056
+#, python-format
+msgid ""
+"A new version of FreeRadio is available: %s.\n"
+"You have version %s.\n"
+"\n"
+"Would you like to open the download page?"
+msgstr ""
+"FreeRadio'nun yeni bir sürümü mevcut: %s.\n"
+"Kurulu sürüm %s.\n"
+"\n"
+"İndirme sayfasını açmak ister misiniz?"
+
+#: addon/globalPlugins/freeradio/__init__.py:1059
+#: addon/globalPlugins/freeradio/__init__.py:1075
+msgid "unknown"
+msgstr "Bilinmiyor"
+
+#: addon/globalPlugins/freeradio/__init__.py:1063
+#| msgid "FreeRadio is not active"
+msgid "FreeRadio Update Available"
+msgstr "FreeRadio Güncellemesi Mevcut"
+
+#: addon/globalPlugins/freeradio/__init__.py:1075
+#, python-format
+msgid "FreeRadio is up to date. Installed: %s"
+msgstr "FreeRadio güncel. Yüklenen: %s"
+
+#: addon/globalPlugins/freeradio/__init__.py:1076
+#| msgid "Stop FreeRadio playback"
+msgid "FreeRadio Update Check"
+msgstr "FreeRadio Güncelleme Kontrolü"
+
+#: addon/globalPlugins/freeradio/__init__.py:1145
+#: addon/globalPlugins/freeradio/__init__.py:1284
 #: addon/globalPlugins/freeradio/radioDialog.py:1233
 msgid "Station"
 msgstr "İstasyon"
 
-#: addon/globalPlugins/freeradio/__init__.py:1030
-#: addon/globalPlugins/freeradio/__init__.py:1147
+#: addon/globalPlugins/freeradio/__init__.py:1149
+#: addon/globalPlugins/freeradio/__init__.py:1266
 msgid "Now playing"
 msgstr "Şimdi çalan"
 
-#: addon/globalPlugins/freeradio/__init__.py:1038
-#: addon/globalPlugins/freeradio/__init__.py:1040
+#: addon/globalPlugins/freeradio/__init__.py:1157
+#: addon/globalPlugins/freeradio/__init__.py:1159
 #: addon/globalPlugins/freeradio/radioDialog.py:1240
 #: addon/globalPlugins/freeradio/radioDialog.py:1242
 msgid "Country"
 msgstr "Ülke"
 
-#: addon/globalPlugins/freeradio/__init__.py:1044
+#: addon/globalPlugins/freeradio/__init__.py:1163
 #: addon/globalPlugins/freeradio/radioDialog.py:1245
 msgid "Language"
 msgstr "Dil"
 
-#: addon/globalPlugins/freeradio/__init__.py:1051
+#: addon/globalPlugins/freeradio/__init__.py:1170
 #: addon/globalPlugins/freeradio/radioDialog.py:1249
 msgid "Genre"
 msgstr "Tür"
 
-#: addon/globalPlugins/freeradio/__init__.py:1060
+#: addon/globalPlugins/freeradio/__init__.py:1179
 #: addon/globalPlugins/freeradio/radioDialog.py:1257
 msgid "Format"
 msgstr "Format"
 
-#: addon/globalPlugins/freeradio/__init__.py:1062
+#: addon/globalPlugins/freeradio/__init__.py:1181
 #: addon/globalPlugins/freeradio/radioDialog.py:1259
 msgid "Bitrate"
 msgstr "Bit hızı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1064
+#: addon/globalPlugins/freeradio/__init__.py:1183
 #: addon/globalPlugins/freeradio/radioDialog.py:1261
 msgid "Codec"
 msgstr "Kodek"
 
-#: addon/globalPlugins/freeradio/__init__.py:1068
+#: addon/globalPlugins/freeradio/__init__.py:1187
 #: addon/globalPlugins/freeradio/radioDialog.py:1264
 msgid "Website"
 msgstr "Web sitesi"
 
-#: addon/globalPlugins/freeradio/__init__.py:1072
+#: addon/globalPlugins/freeradio/__init__.py:1191
 #: addon/globalPlugins/freeradio/radioDialog.py:1267
 msgid "Stream URL"
 msgstr "Yayın adresi"
 
-#: addon/globalPlugins/freeradio/__init__.py:1080
+#: addon/globalPlugins/freeradio/__init__.py:1199
 #: addon/globalPlugins/freeradio/radioDialog.py:1274
 msgid "Votes"
 msgstr "Oy"
 
 # ── İstasyon detayları (__init__.py) ─────────────────────────────────────────
-#: addon/globalPlugins/freeradio/__init__.py:1088
 #: addon/globalPlugins/freeradio/__init__.py:1207
+#: addon/globalPlugins/freeradio/__init__.py:1326
 #: addon/globalPlugins/freeradio/radioDialog.py:1277
 msgid "No station detail available"
 msgstr "İstasyon ayrıntısı bulunamadı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1093
+#: addon/globalPlugins/freeradio/__init__.py:1212
 #: addon/globalPlugins/freeradio/radioDialog.py:1282
 msgid "Station Details"
 msgstr "İstasyon Ayrıntıları"
 
-#: addon/globalPlugins/freeradio/__init__.py:1125
+#: addon/globalPlugins/freeradio/__init__.py:1244
 #: addon/globalPlugins/freeradio/radioDialog.py:1309
 msgid "&Copy all to clipboard"
 msgstr "&Tümünü panoya kopyala"
 
-#: addon/globalPlugins/freeradio/__init__.py:1131
+#: addon/globalPlugins/freeradio/__init__.py:1250
 #: addon/globalPlugins/freeradio/radioDialog.py:1315
 msgid "Station details copied to clipboard"
 msgstr "İstasyon ayrıntıları panoya kopyalandı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1213
+#: addon/globalPlugins/freeradio/__init__.py:1332
 #, python-format
 msgid "Copied: %s"
 msgstr "Kopyalandı: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:1215
+#: addon/globalPlugins/freeradio/__init__.py:1334
 msgid "Could not access clipboard"
 msgstr "Panoya ulaşılamadı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1273
+#: addon/globalPlugins/freeradio/__init__.py:1392
 msgid "Unknown station"
 msgstr "Bilinmeyen istasyon"
 
-#: addon/globalPlugins/freeradio/__init__.py:1279
+#: addon/globalPlugins/freeradio/__init__.py:1398
 msgid "No stream URL available for this station"
 msgstr "Bu istasyon için yayın adresi bulunamadı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1284
+#: addon/globalPlugins/freeradio/__init__.py:1403
 msgid "No internet connection. Please check your connection and try again."
 msgstr ""
 "İnternet bağlantısı yok. Lütfen bağlantınızı kontrol edip tekrar deneyin."
 
-#: addon/globalPlugins/freeradio/__init__.py:1332
+#: addon/globalPlugins/freeradio/__init__.py:1451
 msgid ""
 "Could not play station: Windows Media Player is not available on this "
 "system. Please install VLC media player."
@@ -403,259 +460,272 @@ msgstr ""
 "İstasyon çalınamadı: Bu sistemde Windows Media Player kullanılamıyor. Lütfen "
 "VLC medya oynatıcı kurun."
 
-#: addon/globalPlugins/freeradio/__init__.py:1336
-#: addon/globalPlugins/freeradio/__init__.py:1338
+#: addon/globalPlugins/freeradio/__init__.py:1455
+#: addon/globalPlugins/freeradio/__init__.py:1457
 #, python-format
 msgid "Could not play station: %s"
 msgstr "İstasyon çalınamadı: %s"
 
-#: addon/globalPlugins/freeradio/__init__.py:1350
+#: addon/globalPlugins/freeradio/__init__.py:1469
 msgid "&Disable BASS backend (use VLC/PotPlayer/WMP instead)"
 msgstr "&BASS arka ucunu devre dışı bırak (yerine VLC/PotPlayer/WMP kullan)"
 
-#: addon/globalPlugins/freeradio/__init__.py:1359
+#: addon/globalPlugins/freeradio/__init__.py:1478
 msgid ""
 "Note: Audio device selection, effects, and mirroring require BASS backend."
 msgstr ""
 "Not: Ses cihazı seçimi, efektler ve yansıtma BASS arka ucunu gerektirir."
 
-#: addon/globalPlugins/freeradio/__init__.py:1366
-#: addon/globalPlugins/freeradio/__init__.py:1577
+#: addon/globalPlugins/freeradio/__init__.py:1485
+#: addon/globalPlugins/freeradio/__init__.py:1710
 msgid "Audio output device (BASS backend):"
 msgstr "Ses çıkış cihazı (BASS arka ucu):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1370
-#: addon/globalPlugins/freeradio/__init__.py:1597
+#: addon/globalPlugins/freeradio/__init__.py:1489
+#: addon/globalPlugins/freeradio/__init__.py:1730
 msgid "Loading devices..."
 msgstr "Cihazlar yükleniyor..."
 
-#: addon/globalPlugins/freeradio/__init__.py:1375
+#: addon/globalPlugins/freeradio/__init__.py:1494
 msgid "Volume (0-100):"
 msgstr "Ses düzeyi (0-100):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1383
+#: addon/globalPlugins/freeradio/__init__.py:1502
 msgid "Audio Effects (BASS backend only):"
 msgstr "Ses Efektleri (yalnızca BASS arka ucu):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1390
+#: addon/globalPlugins/freeradio/__init__.py:1509
 #: addon/globalPlugins/freeradio/radioDialog.py:263
 msgid "Chorus"
 msgstr "Koro"
 
-#: addon/globalPlugins/freeradio/__init__.py:1391
+#: addon/globalPlugins/freeradio/__init__.py:1510
 #: addon/globalPlugins/freeradio/radioDialog.py:263
 msgid "Compressor"
 msgstr "Kompresör"
 
-#: addon/globalPlugins/freeradio/__init__.py:1392
+#: addon/globalPlugins/freeradio/__init__.py:1511
 #: addon/globalPlugins/freeradio/radioDialog.py:263
 msgid "Distortion"
 msgstr "Distorsiyon"
 
-#: addon/globalPlugins/freeradio/__init__.py:1393
+#: addon/globalPlugins/freeradio/__init__.py:1512
 #: addon/globalPlugins/freeradio/radioDialog.py:264
 msgid "Echo"
 msgstr "Eko"
 
-#: addon/globalPlugins/freeradio/__init__.py:1394
+#: addon/globalPlugins/freeradio/__init__.py:1513
 #: addon/globalPlugins/freeradio/radioDialog.py:264
 msgid "Flanger"
 msgstr "Flanger"
 
-#: addon/globalPlugins/freeradio/__init__.py:1395
+#: addon/globalPlugins/freeradio/__init__.py:1514
 #: addon/globalPlugins/freeradio/radioDialog.py:264
 msgid "Gargle"
 msgstr "Gargara"
 
-#: addon/globalPlugins/freeradio/__init__.py:1396
+#: addon/globalPlugins/freeradio/__init__.py:1515
 #: addon/globalPlugins/freeradio/radioDialog.py:264
 msgid "Reverb"
 msgstr "Yankı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1397
+#: addon/globalPlugins/freeradio/__init__.py:1516
 #: addon/globalPlugins/freeradio/radioDialog.py:265
 msgid "EQ: Bass Boost"
 msgstr "EQ: Bas Güçlendirme"
 
-#: addon/globalPlugins/freeradio/__init__.py:1398
+#: addon/globalPlugins/freeradio/__init__.py:1517
 #: addon/globalPlugins/freeradio/radioDialog.py:265
 msgid "EQ: Treble Boost"
 msgstr "EQ: Tiz Güçlendirme"
 
-#: addon/globalPlugins/freeradio/__init__.py:1399
+#: addon/globalPlugins/freeradio/__init__.py:1518
 #: addon/globalPlugins/freeradio/radioDialog.py:265
 msgid "EQ: Vocal Boost"
 msgstr "EQ: Vokal Güçlendirme"
 
-#: addon/globalPlugins/freeradio/__init__.py:1403
-#: addon/globalPlugins/freeradio/__init__.py:1586
+#: addon/globalPlugins/freeradio/__init__.py:1522
+#: addon/globalPlugins/freeradio/__init__.py:1719
 msgid "Audio &effects:"
 msgstr "Ses &efektleri:"
 
-#: addon/globalPlugins/freeradio/__init__.py:1414
+#: addon/globalPlugins/freeradio/__init__.py:1533
 msgid "&Resume last station on NVDA startup"
 msgstr "NVDA başladığında son istasyonu &yeniden çal"
 
-#: addon/globalPlugins/freeradio/__init__.py:1420
+#: addon/globalPlugins/freeradio/__init__.py:1539
 msgid "&Auto-announce track changes (ICY metadata)"
 msgstr "Parça değişince &otomatik olarak duyur (ICY meta verileri)"
 
-#: addon/globalPlugins/freeradio/__init__.py:1429
+#: addon/globalPlugins/freeradio/__init__.py:1548
 msgid "&Save liked songs to a text file"
 msgstr "Be&ğenilen şarkıları bir metin dosyasına kaydet"
 
-#: addon/globalPlugins/freeradio/__init__.py:1436
+#: addon/globalPlugins/freeradio/__init__.py:1555
 msgid "When Ctrl+Win+P is pressed with no active playback:"
 msgstr ""
 "CTRL+Win+P tuşlarına çalan ya da duraklatılmış bir istasyon yokken "
 "basıldığında:"
 
-#: addon/globalPlugins/freeradio/__init__.py:1438
+#: addon/globalPlugins/freeradio/__init__.py:1557
 msgid "Resume last station"
 msgstr "Son çalan istasyonu başlat"
 
-#: addon/globalPlugins/freeradio/__init__.py:1439
-#: addon/globalPlugins/freeradio/__init__.py:1452
-#: addon/globalPlugins/freeradio/__init__.py:1471
+#: addon/globalPlugins/freeradio/__init__.py:1558
+#: addon/globalPlugins/freeradio/__init__.py:1571
+#: addon/globalPlugins/freeradio/__init__.py:1590
 msgid "Open favourites list"
 msgstr "Favori listesini aç"
 
-#: addon/globalPlugins/freeradio/__init__.py:1449
+#: addon/globalPlugins/freeradio/__init__.py:1568
 msgid "When Ctrl+Win+P is pressed twice:"
 msgstr "CTRL+Win+p tuşlarına iki kez basıldığında:"
 
-#: addon/globalPlugins/freeradio/__init__.py:1451
-#: addon/globalPlugins/freeradio/__init__.py:1470
+#: addon/globalPlugins/freeradio/__init__.py:1570
+#: addon/globalPlugins/freeradio/__init__.py:1589
 msgid "Do nothing"
 msgstr "Hiçbir şey yapma"
 
-#: addon/globalPlugins/freeradio/__init__.py:1453
-#: addon/globalPlugins/freeradio/__init__.py:1472
+#: addon/globalPlugins/freeradio/__init__.py:1572
+#: addon/globalPlugins/freeradio/__init__.py:1591
 msgid "Open station search"
 msgstr "İstasyon aramayı aç"
 
-#: addon/globalPlugins/freeradio/__init__.py:1454
-#: addon/globalPlugins/freeradio/__init__.py:1473
+#: addon/globalPlugins/freeradio/__init__.py:1573
+#: addon/globalPlugins/freeradio/__init__.py:1592
 msgid "Open recording tab"
 msgstr "Kayıt sekmesini aç"
 
-#: addon/globalPlugins/freeradio/__init__.py:1455
-#: addon/globalPlugins/freeradio/__init__.py:1474
+#: addon/globalPlugins/freeradio/__init__.py:1574
+#: addon/globalPlugins/freeradio/__init__.py:1593
 msgid "Open timer tab"
 msgstr "Zamanlayıcı sekmesini aç"
 
-#: addon/globalPlugins/freeradio/__init__.py:1468
+#: addon/globalPlugins/freeradio/__init__.py:1587
 msgid "When Ctrl+Win+P is pressed three times:"
 msgstr "CTRL+Win+p tuşlarına üç kez basıldığında:"
 
-#: addon/globalPlugins/freeradio/__init__.py:1488
+#: addon/globalPlugins/freeradio/__init__.py:1607
 msgid "Music Recognition via Shazam (Ctrl+Win+I × 3):"
 msgstr "Shazam'la Müzik Tanıma (Ctrl+Win+I × 3):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1489
+#: addon/globalPlugins/freeradio/__init__.py:1608
 msgid "ffmpeg.exe path (optional; auto-used from addon folder if empty):"
 msgstr ""
 "ffmpeg.exe yolu (isteğe bağlı; boşsa ve varsa eklenti klasöründeki otomatik "
 "olarak kullanılır):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1497
+#: addon/globalPlugins/freeradio/__init__.py:1616
 msgid "Brows&e..."
 msgstr "&Gözat..."
 
-#: addon/globalPlugins/freeradio/__init__.py:1503
+#: addon/globalPlugins/freeradio/__init__.py:1622
 msgid "VLC path (optional, auto-detected if empty):"
 msgstr "VLC yolu (isteğe bağlı, boşsa otomatik bulunur):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1508
+#: addon/globalPlugins/freeradio/__init__.py:1627
 msgid "&Browse..."
 msgstr "&Gözat..."
 
-#: addon/globalPlugins/freeradio/__init__.py:1514
+#: addon/globalPlugins/freeradio/__init__.py:1633
 msgid "wmplayer.exe path (optional, used if VLC not found):"
 msgstr "wmplayer.exe yolu (isteğe bağlı, VLC bulunamazsa kullanılır):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1519
+#: addon/globalPlugins/freeradio/__init__.py:1638
 msgid "B&rowse..."
 msgstr "G&özat..."
 
-#: addon/globalPlugins/freeradio/__init__.py:1525
+#: addon/globalPlugins/freeradio/__init__.py:1644
 msgid "PotPlayer path (optional, auto-detected if empty):"
 msgstr "PotPlayer yolu (isteğe bağlı, boşsa otomatik bulunur):"
 
-#: addon/globalPlugins/freeradio/__init__.py:1530
+#: addon/globalPlugins/freeradio/__init__.py:1649
 msgid "Bro&wse..."
 msgstr "Gö&zat..."
 
-#: addon/globalPlugins/freeradio/__init__.py:1537
+#: addon/globalPlugins/freeradio/__init__.py:1656
 msgid "Recordings folder:"
 msgstr "Kayıtların tutulduğu klasör:"
 
-#: addon/globalPlugins/freeradio/__init__.py:1547
+#: addon/globalPlugins/freeradio/__init__.py:1666
 msgid "(empty = default: Documents\\FreeRadio Recordings)"
 msgstr "(boş = varsayılan: Belgeler\\FreeRadio Recordings)"
 
-#: addon/globalPlugins/freeradio/__init__.py:1550
+#: addon/globalPlugins/freeradio/__init__.py:1669
 msgid "Brow&se folder..."
 msgstr "De&iştir"
 
-#: addon/globalPlugins/freeradio/__init__.py:1621
+#: addon/globalPlugins/freeradio/__init__.py:1679
+msgid "&Automatically check for updates on startup"
+msgstr "&Başlangıçta güncellemeleri otomatik olarak kontrol et"
+
+#: addon/globalPlugins/freeradio/__init__.py:1686
+#: addon/globalPlugins/freeradio/__init__.py:1856
+msgid "Check for Updates &Now"
+msgstr "Güncellemeleri &şimdi Kontrol Et"
+
+#: addon/globalPlugins/freeradio/__init__.py:1754
 #: addon/globalPlugins/freeradio/radioDialog.py:610
 msgid "System default"
 msgstr "Sistem varsayılanı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1640
-#: addon/globalPlugins/freeradio/__init__.py:1651
+#: addon/globalPlugins/freeradio/__init__.py:1773
+#: addon/globalPlugins/freeradio/__init__.py:1784
 #: addon/globalPlugins/freeradio/radioDialog.py:665
 #: addon/globalPlugins/freeradio/radioDialog.py:680
 #, python-format
 msgid "%(effect)s %(state)s"
 msgstr "%(effect)s %(state)s"
 
-#: addon/globalPlugins/freeradio/__init__.py:1642
-#: addon/globalPlugins/freeradio/__init__.py:1653
+#: addon/globalPlugins/freeradio/__init__.py:1775
+#: addon/globalPlugins/freeradio/__init__.py:1786
 #: addon/globalPlugins/freeradio/radioDialog.py:667
 #: addon/globalPlugins/freeradio/radioDialog.py:682
 msgid "enabled"
 msgstr "açık"
 
-#: addon/globalPlugins/freeradio/__init__.py:1642
-#: addon/globalPlugins/freeradio/__init__.py:1653
+#: addon/globalPlugins/freeradio/__init__.py:1775
+#: addon/globalPlugins/freeradio/__init__.py:1786
 #: addon/globalPlugins/freeradio/radioDialog.py:667
 #: addon/globalPlugins/freeradio/radioDialog.py:682
 msgid "disabled"
 msgstr "kapalı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1670
+#: addon/globalPlugins/freeradio/__init__.py:1803
 msgid "Select VLC executable"
 msgstr "VLC uygulamasını seçin"
 
-#: addon/globalPlugins/freeradio/__init__.py:1680
+#: addon/globalPlugins/freeradio/__init__.py:1813
 msgid "Select wmplayer.exe"
 msgstr "wmplayer.exe dosyasını seçin"
 
-#: addon/globalPlugins/freeradio/__init__.py:1690
+#: addon/globalPlugins/freeradio/__init__.py:1823
 msgid "Select PotPlayer executable"
 msgstr "PotPlayer uygulamasını seçin"
 
-#: addon/globalPlugins/freeradio/__init__.py:1700
+#: addon/globalPlugins/freeradio/__init__.py:1833
 msgid "Select ffmpeg.exe"
 msgstr "Ffmpeg.exe'yi seçin"
 
-#: addon/globalPlugins/freeradio/__init__.py:1714
+#: addon/globalPlugins/freeradio/__init__.py:1843
+msgid "Checking..."
+msgstr "Kontrol ediliyor..."
+
+#: addon/globalPlugins/freeradio/__init__.py:1865
 msgid "Select recordings folder"
 msgstr "Kayıtların tutulacağı klasörü seç"
 
-#: addon/globalPlugins/freeradio/__init__.py:1863
+#: addon/globalPlugins/freeradio/__init__.py:2015
 #: addon/globalPlugins/freeradio/radioDialog.py:1749
 msgid "Sleep timer"
 msgstr "Uyku zamanlayıcısı"
 
-#: addon/globalPlugins/freeradio/__init__.py:1986
-#: addon/globalPlugins/freeradio/__init__.py:2010
+#: addon/globalPlugins/freeradio/__init__.py:2138
+#: addon/globalPlugins/freeradio/__init__.py:2162
 msgid "Sleep timer: radio stopped"
 msgstr "Uyku zamanlayıcısı: Radyo durduruldu"
 
-#: addon/globalPlugins/freeradio/__init__.py:1996
+#: addon/globalPlugins/freeradio/__init__.py:2148
 msgid "Sleep timer: fading out…"
 msgstr "Uyku zamanlayıcısı: Radyo durduruluyor"
 
@@ -1114,11 +1184,20 @@ msgstr ""
 
 #: buildVars.py:25
 msgid ""
-"Internet connection control has been added to play and resume play scripts.\n"
+"Check for update controls.\n"
 "\n"
 msgstr ""
-"Çal ve çalmayı sürdür komutları için internet bağlantısı kontrolü eklendi.\n"
+"Güncelleme denetimiyle ilgili kontroller eklendi.\n"
 "\n"
+
+#~ msgid ""
+#~ "Internet connection control has been added to play and resume play "
+#~ "scripts.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Çal ve çalmayı sürdür komutları için internet bağlantısı kontrolü "
+#~ "eklendi.\n"
+#~ "\n"
 
 #~ msgid ""
 #~ "Initial release on github.\n"
