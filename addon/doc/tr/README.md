@@ -187,6 +187,7 @@ NVDA Menüsü → Tercihler → Ayarlar → FreeRadio bölümünden aşağıdaki
 | Ctrl+Win+P hiç istasyon çalmıyorken: | Bu kısayola basıldığında aktif oynatma yoksa ne yapılacağını belirler: son çalınan istasyonu başlat veya favoriler listesini aç. |
 | Ctrl+Win+P iki kez basıldığında: | Kısayola art arda iki kez basıldığında gerçekleşecek işlemi seçer: hiçbir şey yapma, favoriler listesini aç, kayıt sekmesini aç veya zamanlayıcı sekmesini aç. "Hiçbir şey yapma" seçiliyken ilk basışta gecikme uygulanmaz ve yanıt anında gerçekleşir. |
 | Ctrl+Win+P üç kez basıldığında: | Kısayola art arda üç kez basıldığında gerçekleşecek işlemi seçer: hiçbir şey yapma, favoriler listesini aç, arama sekmesini aç, kayıt sekmesini aç veya zamanlayıcı sekmesini aç. |
+| Güncellemeleri otomatik denetle | Açıksa NVDA her başlatıldığında arka planda güncelleme kontrolü yapılır; yeni sürüm bulunursa bildirim verilir. Kapatıldığında otomatik kontrol devre dışı kalır, elle kontrol hâlâ kullanılabilir. |
 | Kayıt klasörü | Kayıt dosyalarının yazılacağı klasörü belirler. Gözat düğmesiyle klasör seçilebilir; boş bırakılırsa `Belgeler\FreeRadio Recordings` klasörü kullanılır. |
 | ffmpeg.exe yolu | Müzik tanıma için kullanılan ffmpeg.exe'nin konumu. Boş bırakılırsa eklenti klasöründeki ffmpeg.exe otomatik olarak kullanılır. |
 | VLC yolu | VLC kurulu değilse veya standart dışı bir konumdaysa yürütülebilir dosyanın tam yolu buraya girilebilir. |
@@ -215,6 +216,21 @@ Eklenti ses çıkışı için şu öncelik sırasıyla bir arka uç seçer:
 2. **VLC** — BASS başarısız olursa devreye girer. Yaygın kurulum konumlarında, kullanıcı profili klasörlerinde ve sistem PATH'inde otomatik aranır.
 3. **PotPlayer** — VLC bulunamazsa denenir. Yaygın kurulum konumlarında otomatik aranır.
 4. **Windows Media Player** — son seçenek olarak kullanılır; sistem üzerinde WMP bileşeni kurulu olmasını gerektirir.
+
+## Güncelleme Kontrolü
+
+FreeRadio, yeni sürüm olup olmadığını GitHub üzerinden otomatik olarak kontrol eder.
+
+**Otomatik kontrol:** NVDA başladıktan 15 saniye sonra arka planda sessizce çalışır. Yeni bir sürüm bulunursa bildirim verilir; bulunamazsa herhangi bir mesaj gösterilmez.
+
+**Elle kontrol:** NVDA Araçlar → FreeRadio → **Güncellemeleri Denetle...** menü öğesiyle istendiğinde tetiklenebilir. Bu yoldan başlatıldığında sürüm güncel olsa bile sonuç seslendirilir.
+
+**Güncelleme bulunduğunda:** Sürüm numarasını ve yüklü sürümünüzü gösteren bir iletişim kutusu açılır.
+
+- GitHub release'inde doğrudan indirilebilir bir `.nvda-addon` dosyası mevcutsa **İndir ve Kur** düğmesi gösterilir. Onaylandıktan sonra dosya arka planda indirilir, indirme başladığında NVDA bunu seslendirir ve ardından NVDA'nın kendi kurulum ekranı otomatik olarak açılır.
+- Doğrudan indirme bağlantısı mevcut değilse **Sayfayı Aç** düğmesi gösterilir ve GitHub release sayfası varsayılan tarayıcıda açılır.
+
+**Otomatik kontrolü devre dışı bırakmak için:** NVDA Menüsü → Tercihler → Ayarlar → FreeRadio bölümünden **Güncellemeleri otomatik denetle** seçeneği kapatılabilir.
 
 ## Lisans
 

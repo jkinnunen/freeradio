@@ -188,6 +188,7 @@ The following options can be configured from NVDA Menu → Preferences → Setti
 | When Ctrl+Win+P is pressed with no active playback | Determines what happens when this shortcut is pressed and nothing is playing: start the last station or open the favourites list. |
 | When Ctrl+Win+P is pressed twice | Selects what happens when the shortcut is pressed twice in quick succession: do nothing, open the favourites list, open the recording tab or open the timer tab. When "do nothing" is selected, the first press responds instantly with no delay. |
 | When Ctrl+Win+P is pressed three times | Selects what happens when the shortcut is pressed three times in quick succession: do nothing, open the favourites list, open the search tab, open the recording tab or open the timer tab. |
+| Automatically check for updates | When enabled, FreeRadio silently checks for a new version in the background each time NVDA starts and notifies you if one is found. Disabling this turns off automatic checks; manual checks from the Tools menu remain available. |
 | ffmpeg.exe path | Path to the ffmpeg.exe used for music recognition. If left blank, an ffmpeg.exe in the add-on folder is used automatically. |
 | VLC path | If VLC is not installed or is in a non-standard location, the full path to the executable can be entered here. |
 | wmplayer.exe path | Enter the path to Windows Media Player here if needed. |
@@ -216,6 +217,21 @@ The add-on selects a playback backend using the following priority order:
 2. **VLC** — takes over if BASS fails. Searched automatically in common installation locations, user profile folders and the system PATH.
 3. **PotPlayer** — tried if VLC is not found. Searched automatically in common installation locations.
 4. **Windows Media Player** — used as a last resort; requires the WMP component to be installed on the system.
+
+## Update Check
+
+FreeRadio automatically checks GitHub for new versions.
+
+**Automatic check:** Runs silently in the background 15 seconds after NVDA starts. If a new version is found, a notification is shown; if the add-on is already up to date, no message is displayed.
+
+**Manual check:** Can be triggered at any time from NVDA Tools → FreeRadio → **Check for Updates...**. When started this way, the result is always announced even if the add-on is already up to date.
+
+**When an update is found:** A dialog shows the new version number alongside your currently installed version.
+
+- If a directly downloadable `.nvda-addon` file is available in the GitHub release, an **Install** button is shown. After confirming, the file is downloaded in the background — NVDA announces when the download starts — and NVDA's built-in add-on installer opens automatically.
+- If no direct download link is available, an **Open Page** button is shown instead, which opens the GitHub releases page in your default browser.
+
+**To disable automatic checks:** Turn off the **Automatically check for updates** option from NVDA Menu → Preferences → Settings → FreeRadio.
 
 ## License
 

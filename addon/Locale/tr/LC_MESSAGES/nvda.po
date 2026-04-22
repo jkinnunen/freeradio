@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: FreeRadio 2026.3.21\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2026-04-22 18:33+0300\n"
-"PO-Revision-Date: 2026-04-22 18:36+0300\n"
+"PO-Revision-Date: 2026-04-23 00:04+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: tr\n"
@@ -337,7 +337,7 @@ msgstr ""
 #: addon/globalPlugins/freeradio/__init__.py:1069
 #: addon/globalPlugins/freeradio/__init__.py:1130
 msgid "unknown"
-msgstr "Bilinmiyor"
+msgstr "Bilinmeyen"
 
 #: addon/globalPlugins/freeradio/__init__.py:1063
 msgid "&Install"
@@ -697,7 +697,7 @@ msgstr "(boş = varsayılan: Belgeler\\FreeRadio Recordings)"
 
 #: addon/globalPlugins/freeradio/__init__.py:1724
 msgid "Brow&se folder..."
-msgstr "De&iştir"
+msgstr "K&lasöre göz at..."
 
 #: addon/globalPlugins/freeradio/__init__.py:1734
 msgid "&Automatically check for updates on startup"
@@ -1223,8 +1223,8 @@ msgstr ""
 "VLC, PotPlayer, Windows Media Player) tarafından gerçekleştirilir. Ek "
 "özellikler arasında anında ve programlı kayıt, uyku ve alarm "
 "zamanlayıcıları, otomatik ICY meta veri duyuruları, Shazam tabanlı müzik "
-"tanıma ve sevilen şarkılar günlüğü yer alır. Tüm kontroller ve kısayollar "
-"NVDA erişilebilirliğine göre tasarlanmıştır."
+"tanıma ve beğenilen şarkılar günlüğü yer alır. Tüm kontroller ve kısayollar "
+"kullanım kolaylığı ve erişilebilirlik gözetilerek  tasarlanmıştır."
 
 #: buildVars.py:25
 msgid ""
