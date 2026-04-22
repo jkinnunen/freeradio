@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FreeRadio 2026.3.21\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2026-04-22 18:33+0300\n"
-"PO-Revision-Date: 2026-04-23 00:04+0300\n"
+"POT-Creation-Date: 2026-04-23 00:06+0300\n"
+"PO-Revision-Date: 2026-04-23 00:07+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: tr\n"
@@ -317,11 +317,6 @@ msgstr "En son sürüm belirlenemedi."
 
 #: addon/globalPlugins/freeradio/__init__.py:1059
 #, python-format
-#| msgid ""
-#| "A new version of FreeRadio is available: %s.\n"
-#| "You have version %s.\n"
-#| "\n"
-#| "Would you like to open the download page?"
 msgid ""
 "A new version of FreeRadio is available: %s.\n"
 "You have version %s.\n"
@@ -375,13 +370,11 @@ msgstr "FreeRadio %s indiriliyor…"
 
 #: addon/globalPlugins/freeradio/__init__.py:1111
 #, python-format
-#| msgid "Recognition failed: %s"
 msgid "Download failed: %s"
 msgstr "İndirme başarısız: %s"
 
 #: addon/globalPlugins/freeradio/__init__.py:1121
 #, python-format
-#| msgid "Could not play station: %s"
 msgid "Could not launch installer. File saved to: %s"
 msgstr "Yükleyici başlatılamadı. Dosya şuraya kaydedildi: %s"
 
@@ -1228,11 +1221,18 @@ msgstr ""
 
 #: buildVars.py:25
 msgid ""
-"Check for update controls.\n"
+"Documentation updates. Fixed small typos.\n"
 "\n"
 msgstr ""
-"Güncelleme denetimiyle ilgili kontroller eklendi.\n"
+"Dokümantasyon güncellemeleri. Küçük yazım hataları düzeltmeleri.\n"
 "\n"
+
+#~ msgid ""
+#~ "Check for update controls.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Güncelleme denetimiyle ilgili kontroller eklendi.\n"
+#~ "\n"
 
 #~ msgid ""
 #~ "Internet connection control has been added to play and resume play "
