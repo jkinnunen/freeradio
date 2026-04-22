@@ -961,6 +961,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._current_index = index
 		self._play_station(station, announce)
 
+	def _check_internet(self, timeout=3):
+		"""Check internet connectivity via a TCP socket to Google DNS.
+		Returns True if reachable, False otherwise.
+		Uses a per-socket timeout to avoid side effects on other connections."""
+		import socket
+		try:
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.settimeout(timeout)
+			s.connect(("8.8.8.8", 53))
+			s.close()
+			return True
+		except Exception:
+			return False
+
 	def _resume_last_station(self):
 		url  = config.conf["freeradio"].get("last_station_url", "").strip()
 		name = config.conf["freeradio"].get("last_station_name", "").strip()
@@ -1263,6 +1277,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 		if not url:
 			ui.message(_("No stream URL available for this station"))
+			return
+
+		# Check internet connectivity before attempting to stream
+		if not self._check_internet():
+			ui.message(_("No internet connection. Please check your connection and try again."))
 			return
 
 		try:
