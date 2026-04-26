@@ -365,7 +365,10 @@ class BassHost:
                                 self._dll_hls = _HlsProxy(_fn)
                             # 3s live delay: Provides sufficient buffer for smartstream.ne.jp,
                             # It also reduces the startup delay to 5s→3s.
-                            dll.BASS_SetConfig(_BASS_CONFIG_HLS_DELAY, 3)
+                            # Live delay: 8s provides enough buffer for CDN-backed HLS streams
+                            # (e.g. TRT) that produce segments every 6-8s.
+                            # 3s was too aggressive and caused underruns on slow CDN responses.
+                            dll.BASS_SetConfig(_BASS_CONFIG_HLS_DELAY, 8)
                     except Exception:
                         self._dll_hls = None
 
@@ -1008,8 +1011,11 @@ Reads ICY tag every ~3s and channels with BASS_ChannelIsActive
                         if not self._meta_stop.is_set():
                             _event(type="stall", state=state)
                         stall_count = 0
-                else:
+                elif state == _BASS_ACTIVE_PLAYING:
+                    # Only reset on confirmed PLAYING — transient stalls during
+                    # HLS segment fetches should not reset the counter prematurely.
                     stall_count = 0
+                # PAUSED: leave stall_count unchanged
 
             except Exception:
                 pass
