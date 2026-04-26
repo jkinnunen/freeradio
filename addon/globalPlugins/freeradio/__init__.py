@@ -1188,7 +1188,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def _build_station_details(self):
 		"""Return station information (including stream URL) as a list of (label, value) rows."""
-		from .radioDialog import _country_name
+		from .utils import country_name as _country_name
 		s = self._player.get_current_station()
 		if not s:
 			return []

@@ -35,135 +35,17 @@ def _radio_browser_error():
 	return _RadioBrowserError
 
 
-_COUNTRY_NAMES = {
-	"AD": "Andorra", "AE": "Birleşik Arap Emirlikleri", "AF": "Afganistan",
-	"AG": "Antigua ve Barbuda", "AI": "Anguilla", "AL": "Arnavutluk",
-	"AM": "Ermenistan", "AO": "Angola", "AQ": "Antarktika",
-	"AR": "Arjantin", "AS": "Amerikan Samoası", "AT": "Avusturya",
-	"AU": "Avustralya", "AW": "Aruba", "AX": "Åland Adaları",
-	"AZ": "Azerbaycan", "BA": "Bosna-Hersek", "BB": "Barbados",
-	"BD": "Bangladeş", "BE": "Belçika", "BF": "Burkina Faso",
-	"BG": "Bulgaristan", "BH": "Bahreyn", "BI": "Burundi",
-	"BJ": "Benin", "BL": "Saint-Barthélemy", "BM": "Bermuda",
-	"BN": "Brunei", "BO": "Bolivya", "BQ": "Karayip Hollandası",
-	"BR": "Brezilya", "BS": "Bahamalar", "BT": "Bhutan",
-	"BV": "Bouvet Adası", "BW": "Botsvana", "BY": "Beyaz Rusya",
-	"BZ": "Belize", "CA": "Kanada", "CC": "Cocos Adaları",
-	"CD": "Kongo (Demokratik Cumhuriyet)", "CF": "Orta Afrika Cumhuriyeti",
-	"CG": "Kongo", "CH": "İsviçre", "CI": "Fildişi Sahili",
-	"CK": "Cook Adaları", "CL": "Şili", "CM": "Kamerun",
-	"CN": "Çin", "CO": "Kolombiya", "CR": "Kosta Rika",
-	"CU": "Küba", "CV": "Yeşil Burun Adaları", "CW": "Curaçao",
-	"CX": "Christmas Adası", "CY": "Kıbrıs", "CZ": "Çekya",
-	"DE": "Almanya", "DJ": "Cibuti", "DK": "Danimarka",
-	"DM": "Dominika", "DO": "Dominik Cumhuriyet", "DZ": "Cezayir",
-	"EC": "Ekvador", "EE": "Estonya", "EG": "Mısır",
-	"EH": "Batı Sahra", "ER": "Eritre", "ES": "İspanya",
-	"ET": "Etiyopya", "FI": "Finlandiya", "FJ": "Fiji",
-	"FK": "Falkland Adaları", "FM": "Mikronezya", "FO": "Faroe Adaları",
-	"FR": "Fransa", "GA": "Gabon", "GB": "Birleşik Krallık",
-	"GD": "Grenada", "GE": "Gürcistan", "GF": "Fransız Guyanası",
-	"GG": "Guernsey", "GH": "Gana", "GI": "Cebelitarık",
-	"GL": "Grönland", "GM": "Gambiya", "GN": "Gine",
-	"GP": "Guadeloupe", "GQ": "Ekvator Ginesi", "GR": "Yunanistan",
-	"GS": "Güney Georgia ve Sandwich Adaları", "GT": "Guatemala",
-	"GU": "Guam", "GW": "Gine-Bissau", "GY": "Guyana",
-	"HK": "Hong Kong", "HM": "Heard ve McDonald Adaları",
-	"HN": "Honduras", "HR": "Hırvatistan", "HT": "Haiti",
-	"HU": "Macaristan", "ID": "Endonezya", "IE": "İrlanda",
-	"IL": "İsrail", "IM": "Man Adası", "IN": "Hindistan",
-	"IO": "Hint Okyanusu İngiliz Toprağı", "IQ": "Irak",
-	"IR": "İran", "IS": "İzlanda", "IT": "İtalya",
-	"JE": "Jersey", "JM": "Jamaika", "JO": "Ürdün",
-	"JP": "Japonya", "KE": "Kenya", "KG": "Kırgızistan",
-	"KH": "Kamboçya", "KI": "Kiribati", "KM": "Komorlar",
-	"KN": "Saint Kitts ve Nevis", "KP": "Kuzey Kore", "KR": "Güney Kore",
-	"KW": "Kuveyt", "KY": "Cayman Adaları", "KZ": "Kazakistan",
-	"LA": "Laos", "LB": "Lübnan", "LC": "Saint Lucia",
-	"LI": "Lihtenştayn", "LK": "Sri Lanka", "LR": "Liberya",
-	"LS": "Lesotho", "LT": "Litvanya", "LU": "Lüksemburg",
-	"LV": "Letonya", "LY": "Libya", "MA": "Fas",
-	"MC": "Monako", "MD": "Moldova", "ME": "Karadağ",
-	"MF": "Saint-Martin", "MG": "Madagaskar", "MH": "Marshall Adaları",
-	"MK": "Kuzey Makedonya", "ML": "Mali", "MM": "Myanmar",
-	"MN": "Moğolistan", "MO": "Makao", "MP": "Kuzey Mariana Adaları",
-	"MQ": "Martinik", "MR": "Moritanya", "MS": "Montserrat",
-	"MT": "Malta", "MU": "Mauritius", "MV": "Maldivler",
-	"MW": "Malavi", "MX": "Meksika", "MY": "Malezya",
-	"MZ": "Mozambik", "NA": "Namibya", "NC": "Yeni Kaledonya",
-	"NE": "Nijer", "NF": "Norfolk Adası", "NG": "Nijerya",
-	"NI": "Nikaragua", "NL": "Hollanda", "NO": "Norveç",
-	"NP": "Nepal", "NR": "Nauru", "NU": "Niue",
-	"NZ": "Yeni Zelanda", "OM": "Umman", "PA": "Panama",
-	"PE": "Peru", "PF": "Fransız Polinezyası", "PG": "Papua Yeni Gine",
-	"PH": "Filipinler", "PK": "Pakistan", "PL": "Polonya",
-	"PM": "Saint-Pierre ve Miquelon", "PN": "Pitcairn Adaları",
-	"PR": "Porto Riko", "PS": "Filistin", "PT": "Portekiz",
-	"PW": "Palau", "PY": "Paraguay", "QA": "Katar",
-	"RE": "Réunion", "RO": "Romanya", "RS": "Sırbistan",
-	"RU": "Rusya", "RW": "Ruanda", "SA": "Suudi Arabistan",
-	"SB": "Solomon Adaları", "SC": "Seyşeller", "SD": "Sudan",
-	"SE": "İsveç", "SG": "Singapur", "SH": "Saint Helena",
-	"SI": "Slovenya", "SJ": "Svalbard ve Jan Mayen", "SK": "Slovakya",
-	"SL": "Sierra Leone", "SM": "San Marino", "SN": "Senegal",
-	"SO": "Somali", "SR": "Surinam", "SS": "Güney Sudan",
-	"ST": "São Tomé ve Príncipe", "SV": "El Salvador", "SX": "Sint Maarten",
-	"SY": "Suriye", "SZ": "Esvatini", "TC": "Turks ve Caicos Adaları",
-	"TD": "Çad", "TF": "Fransız Güney Toprakları", "TG": "Togo",
-	"TH": "Tayland", "TJ": "Tacikistan", "TK": "Tokelau",
-	"TL": "Doğu Timor", "TM": "Türkmenistan", "TN": "Tunus",
-	"TO": "Tonga", "TR": "Türkiye", "TT": "Trinidad ve Tobago",
-	"TV": "Tuvalu", "TW": "Tayvan", "TZ": "Tanzanya",
-	"UA": "Ukrayna", "UG": "Uganda", "UM": "ABD Küçük Dış Adaları",
-	"US": "Amerika Birleşik Devletleri", "UY": "Uruguay", "UZ": "Özbekistan",
-	"VA": "Vatikan", "VC": "Saint Vincent ve Grenadinler", "VE": "Venezuela",
-	"VG": "Britanya Virjin Adaları", "VI": "ABD Virjin Adaları",
-	"VN": "Vietnam", "VU": "Vanuatu", "WF": "Wallis ve Futuna",
-	"WS": "Samoa", "XK": "Kosova", "YE": "Yemen",
-	"YT": "Mayotte", "ZA": "Güney Afrika", "ZM": "Zambiya",
-	"ZW": "Zimbabve",
-}
+from .utils import (
+	country_name,
+	country_name   as _country_name,
+	station_label  as _station_label,
+	first_tag      as _first_tag,
+	tr_sort_key    as _tr_sort_key,
+	_COUNTRY_NAMES,
+	_NAME_TO_CODE,
+	name_to_code,
+)
 
-
-def _country_name(code):
-	"""Return the full country name for a two-letter ISO code, or the code itself if unknown."""
-	return _COUNTRY_NAMES.get(code.upper(), code.upper())
-
-
-_NAME_TO_CODE = {v: k for k, v in _COUNTRY_NAMES.items()}
-
-
-def _station_label(station):
-	name    = station.get("name", _("Unknown"))
-	country = station.get("countrycode", "")
-	tags    = station.get("tags", "")
-	parts   = [name.strip()]
-	if country:
-		parts.append(_country_name(country))
-	if tags:
-		first_tag = tags.split(",")[0].strip()
-		if first_tag:
-			parts.append(first_tag)
-	return " - ".join(parts)
-
-
-def _first_tag(station):
-	tags = station.get("tags", "")
-	if not tags:
-		return ""
-	return tags.split(",")[0].strip().lower()
-
-
-# Character order for Turkish alphabetical sorting
-# (In Turkish, İ/i, Ğ/ğ, Ş/ş, Ü/ü, Ö/ö, Ç/ç are in different positions than the English alphabet)
-_TR_ORDER = "aAbBcCçÇdDeEfFgGğĞhHıIiİjJkKlLmMnNoOöÖpPrRsSSşŞtTuUüÜvVyYzZ0123456789"
-_TR_CHAR_KEY = {ch: idx for idx, ch in enumerate(_TR_ORDER)}
-
-
-def _tr_sort_key(station):
-	"""Generates key from station name for Turkish alphabetical sorting."""
-	name = station.get("name", "").strip()
-	return [_TR_CHAR_KEY.get(ch, len(_TR_ORDER) + ord(ch)) for ch in name]
 
 
 class RadioDialog(wx.Dialog):
@@ -387,7 +269,7 @@ class RadioDialog(wx.Dialog):
 		filter_sizer = wx.BoxSizer(wx.HORIZONTAL)
 		filter_sizer.Add(wx.StaticText(self._all_panel, label=_("Country:")),
 		                 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 4)
-		_all_country_names = sorted(_COUNTRY_NAMES.values())
+		_all_country_names = sorted(country_name(code) for code in _COUNTRY_NAMES)
 		self._country_cb = wx.ComboBox(self._all_panel, style=wx.CB_READONLY, choices=[_("All")] + _all_country_names)
 		self._country_cb.SetSelection(0)
 		filter_sizer.Add(self._country_cb, 1)
@@ -885,7 +767,7 @@ class RadioDialog(wx.Dialog):
 	def _prepopulate_country_combo(self):
 		"""As soon as the dialog opens, add all countries from the local dictionary to the combo.
 		API response is not expected; All countries are visible even if there is no network connection."""
-		all_names = sorted(_COUNTRY_NAMES.values())
+		all_names = sorted(country_name(code) for code in _COUNTRY_NAMES)
 		self._country_cb.Set([_("All")] + all_names)
 		self._country_cb.SetSelection(0)
 
@@ -1066,7 +948,7 @@ class RadioDialog(wx.Dialog):
 
 			def fetch():
 				RadioBrowserError = _radio_browser_error()
-				country_code = _NAME_TO_CODE.get(country_snap, country_snap)
+				country_code = name_to_code(country_snap)
 				try:
 					data    = self._manager.get_stations_by_country(country_code)
 					results = data or []
