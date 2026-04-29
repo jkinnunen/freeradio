@@ -96,11 +96,11 @@ The following keys work only while the Station Browser window is active.
 | `Alt+R` | Go to search field | Moves focus to the search text box. |
 | `Alt+A` | Search online | Searches Radio Browser with the text in the search field; name, country and genre are searched simultaneously. |
 | `Alt+V` | Add / remove favourite | Adds the selected station to favourites; removes it if already in the list. |
-| `Alt+T` | All Stations | Switches to the All Stations tab. |
-| `Alt+F` | Favourites | Switches to the Favourites tab and focuses the list. |
-| `Alt+Y` | Recording | Switches to the Recording tab. |
-| `Alt+Z` | Timer | Switches to the Timer tab. |
-| `Alt+B` | Liked Songs | Switches to the Liked Songs tab. |
+| `Alt+1` | All Stations | Switches to the All Stations tab. |
+| `Alt+2` | Favourites | Switches to the Favourites tab. |
+| `Alt+3` | Recording | Switches to the Recording tab. |
+| `Alt+4` | Timer | Switches to the Timer tab. |
+| `Alt+5` | Liked Songs | Switches to the Liked Songs tab. |
 | `Alt+K` | Close | Closes the window; the add-on continues playing in the background. |
 
 ## Favourites
@@ -166,7 +166,7 @@ If the entered time has already passed, the recording is scheduled for the follo
 
 ## Timer
 
-Open the Timer tab in the station browser (`Alt+Z`). Two types of timer can be added:
+Open the Timer tab in the station browser (`Alt+4`). Two types of timer can be added:
 
 **Alarm — start radio:** Automatically starts playing a selected station from your favourites at the specified time. Choose a station and enter the time in HH:MM format.
 

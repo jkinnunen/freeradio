@@ -96,16 +96,17 @@ class RadioDialog(wx.Dialog):
 		self._rec_panel    = wx.Panel(self._notebook)
 		self._timer_panel  = wx.Panel(self._notebook)
 		self._liked_panel  = wx.Panel(self._notebook)
-		self._notebook.AddPage(self._all_panel,   _("&All Stations"))
-		self._notebook.AddPage(self._fav_panel,   _("&Favourites"))
-		self._notebook.AddPage(self._rec_panel,   _("&Recording"))
-		self._notebook.AddPage(self._timer_panel, _("&Timer"))
-		self._notebook.AddPage(self._liked_panel, _("&Liked Songs"))
+		# Tab labels no longer carry letter accelerators; numeric shortcuts
+		# Alt+1..5 are handled in _on_char_hook via an accelerator table.
+		self._notebook.AddPage(self._all_panel,   _("All Stations"))
+		self._notebook.AddPage(self._fav_panel,   _("Favourites"))
+		self._notebook.AddPage(self._rec_panel,   _("Recording"))
+		self._notebook.AddPage(self._timer_panel, _("Timer"))
+		self._notebook.AddPage(self._liked_panel, _("Liked Songs"))
 		self._notebook.SetSelection(0)  # Start on the All Stations tab
 		main_sizer.Add(self._notebook, 1, wx.EXPAND | wx.ALL, 5)
 
-		import config as _cfg
-		disable_bass = _cfg.conf["freeradio"].get("disable_bass", False)
+		disable_bass = config.conf["freeradio"].get("disable_bass", False)
 
 		# Audio Output Device line (visible on all tabs, only if BASS is enabled)
 		device_row = wx.BoxSizer(wx.HORIZONTAL)
@@ -131,7 +132,7 @@ class RadioDialog(wx.Dialog):
 		audio_row.Add(_vol_label, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 8)
 
 		self._vol_spin = wx.SpinCtrl(self, min=0, max=200,
-		                             initial=_cfg.conf["freeradio"]["volume"])
+		                             initial=config.conf["freeradio"]["volume"])
 		self._vol_spin.SetName(_("Volume:"))
 		self._vol_spin.SetMinSize((70, -1))
 		audio_row.Add(self._vol_spin, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 4)
@@ -150,7 +151,7 @@ class RadioDialog(wx.Dialog):
 		]
 		self._fx_choice = wx.CheckListBox(self, choices=_fx_display)
 		self._fx_choice.SetName(_("Effects:"))
-		_saved_fx = _cfg.conf["freeradio"].get("audio_fx", "none")
+		_saved_fx = config.conf["freeradio"].get("audio_fx", "none")
 		_active = {x.strip() for x in _saved_fx.split(",") if x.strip() != "none"}
 		for i, key in enumerate(self._fx_keys):
 			self._fx_choice.Check(i, key in _active)
@@ -463,8 +464,18 @@ class RadioDialog(wx.Dialog):
 			return self._fav_list
 		return self._all_list
 
-	def _on_tab_changed(self, event):
-		sel = event.GetSelection()
+	def _apply_tab_side_effects(self, sel):
+		"""Central handler for all side-effects that must run whenever the active
+		notebook tab changes, regardless of whether the change was triggered by a
+		wx.NotebookEvent (Ctrl+Tab, mouse click) or by a programmatic SetSelection
+		call (Alt+1..5 shortcuts).
+
+		Responsibilities:
+		  - Show/hide action buttons that are irrelevant on the rec/timer/liked tabs.
+		  - Trigger per-tab data refresh.
+		  - Set _tab_just_switched so the focus handler can suppress redundant
+		    screen-reader announcements.
+		"""
 		on_rec_or_timer = (sel in (2, 3, 4))
 		self._play_btn.Show(not on_rec_or_timer)
 		self._fav_btn.Show(not on_rec_or_timer)
@@ -488,13 +499,24 @@ class RadioDialog(wx.Dialog):
 			self._refresh_liked_list()
 		if sel != 1 and hasattr(self, "_save_audio_btn"):
 			self._save_audio_btn.Enable(False)
+
+	def _on_tab_changed_index(self, sel):
+		"""Switch tab programmatically (e.g. Alt+1..5) and apply all side-effects.
+		Also announces the new tab name to screen readers via ui.message, because
+		wx.NotebookEvent is not fired for programmatic SetSelection calls.
+		"""
+		self._apply_tab_side_effects(sel)
+		ui.message(self._notebook.GetPageText(sel))
+
+	def _on_tab_changed(self, event):
+		"""wx.EVT_NOTEBOOK_PAGE_CHANGED handler (user interaction / Ctrl+Tab)."""
+		self._apply_tab_side_effects(event.GetSelection())
 		event.Skip()
 
 
 	def _load_audio_devices(self):
 		"""Get the device list from BASS in the background, transfer it to the Choice control."""
-		import config as _cfg
-		if _cfg.conf["freeradio"].get("disable_bass", False):
+		if config.conf["freeradio"].get("disable_bass", False):
 			return
 		devices = []
 		try:
@@ -507,12 +529,11 @@ class RadioDialog(wx.Dialog):
 		"""Fill the Choice control with the device list and select the saved one."""
 		if not self or not self._device_choice:
 			return
-		import config as _cfg
 		self._dialog_audio_devices = [(-1, _("System default"))] + list(devices)
 		self._device_choice.Clear()
 		for _idx, name in self._dialog_audio_devices:
 			self._device_choice.Append(name)
-		saved = _cfg.conf["freeradio"].get("audio_device", -1)
+		saved = config.conf["freeradio"].get("audio_device", -1)
 		sel = 0
 		for i, (idx, _name) in enumerate(self._dialog_audio_devices):
 			if idx == saved:
@@ -522,8 +543,7 @@ class RadioDialog(wx.Dialog):
 
 	def _on_device_changed(self, event):
 		"""When the user changes the device selection, apply it instantly and save it in the config."""
-		import config as _cfg
-		if _cfg.conf["freeradio"].get("disable_bass", False):
+		if config.conf["freeradio"].get("disable_bass", False):
 			event.Skip()
 			return
 		sel = self._device_choice.GetSelection()
@@ -531,14 +551,14 @@ class RadioDialog(wx.Dialog):
 			new_index = self._dialog_audio_devices[sel][0]
 		else:
 			new_index = -1
-		_cfg.conf["freeradio"]["audio_device"] = new_index
+		config.conf["freeradio"]["audio_device"] = new_index
 		try:
 			self._player.switch_output_device(new_index)
 		except Exception:
 			pass
 		actual = getattr(self._player, "_output_device_index", new_index)
 		if actual != new_index:
-			_cfg.conf["freeradio"]["audio_device"] = actual
+			config.conf["freeradio"]["audio_device"] = actual
 			for i, (idx, _name) in enumerate(self._dialog_audio_devices):
 				if idx == actual:
 					self._device_choice.SetSelection(i)
@@ -547,16 +567,14 @@ class RadioDialog(wx.Dialog):
 
 	def _on_vol_changed(self, event):
 		"""When the volume changes, instantly apply it to the player and save it in the config."""
-		import config as _cfg
 		vol = self._vol_spin.GetValue()
 		self._player.set_volume(vol)
-		_cfg.conf["freeradio"]["volume"] = min(100, vol)
+		config.conf["freeradio"]["volume"] = min(100, vol)
 		event.Skip()
 
 	def _on_fx_focus(self, event):
 		"""Tell the enabled/disabled status of an effect in the list when hovering over it."""
-		import config as _cfg
-		if _cfg.conf["freeradio"].get("disable_bass", False):
+		if config.conf["freeradio"].get("disable_bass", False):
 			event.Skip()
 			return
 		idx = event.GetSelection()
@@ -571,8 +589,7 @@ class RadioDialog(wx.Dialog):
 
 	def _on_fx_changed(self, event):
 		"""Instantly apply all checked effects and save them in the config."""
-		import config as _cfg
-		if _cfg.conf["freeradio"].get("disable_bass", False):
+		if config.conf["freeradio"].get("disable_bass", False):
 			event.Skip()
 			return
 		idx = event.GetInt()
@@ -589,7 +606,7 @@ class RadioDialog(wx.Dialog):
 			self._player.set_fx(fx_str)
 		except Exception:
 			pass
-		_cfg.conf["freeradio"]["audio_fx"] = fx_str
+		config.conf["freeradio"]["audio_fx"] = fx_str
 		event.Skip()
 
 	def _on_fav_list_focus(self, event):
@@ -1514,8 +1531,7 @@ class RadioDialog(wx.Dialog):
 		if key == wx.WXK_F5:
 			vol = max(0, self._player.get_volume() - 10)
 			self._player.set_volume(vol)
-			import config as _cfg
-			_cfg.conf["freeradio"]["volume"] = min(100, vol)
+			config.conf["freeradio"]["volume"] = min(100, vol)
 			ui.message(_("Volume %d") % vol)
 			self._vol_spin.SetValue(vol)
 			if self._plugin:
@@ -1528,8 +1544,7 @@ class RadioDialog(wx.Dialog):
 		if key == wx.WXK_F6:
 			vol = min(200, self._player.get_volume() + 10)
 			self._player.set_volume(vol)
-			import config as _cfg
-			_cfg.conf["freeradio"]["volume"] = min(100, vol)
+			config.conf["freeradio"]["volume"] = min(100, vol)
 			ui.message(_("Volume %d") % vol)
 			self._vol_spin.SetValue(vol)
 			if self._plugin:
@@ -1630,20 +1645,15 @@ class RadioDialog(wx.Dialog):
 				if self._fav_btn.IsEnabled():
 					self._on_toggle_favorite(event)
 				return
-			if key == ord("T"):
-				self._notebook.SetSelection(0)
-				return
-			if key == ord("F"):
-				self._notebook.SetSelection(1)
-				return
-			if key == ord("Z"):
-				self._notebook.SetSelection(3)
-				return
-			if key == ord("Y"):
-				self._notebook.SetSelection(2)
-				return
 			if key == ord("K"):
 				self.Hide()
+				return
+			# Numeric tab shortcuts: Alt+1..5 switch to the corresponding tab.
+			# Tab order: 1=All Stations, 2=Favourites, 3=Recording, 4=Timer, 5=Liked Songs
+			if ord("1") <= key <= ord("5"):
+				tab_index = key - ord("1")  # convert '1'->0, '2'->1, ..., '5'->4
+				self._notebook.SetSelection(tab_index)
+				self._on_tab_changed_index(tab_index)
 				return
 
 		event.Skip()
@@ -1899,8 +1909,7 @@ class RadioDialog(wx.Dialog):
 
 	def _liked_songs_path(self):
 		"""Return the path to likedSongs.txt, mirroring __init__.py logic."""
-		import config as _cfg
-		custom_dir = _cfg.conf["freeradio"].get("recordings_dir", "").strip()
+		custom_dir = config.conf["freeradio"].get("recordings_dir", "").strip()
 		if custom_dir and os.path.isabs(custom_dir):
 			recordings_dir = custom_dir
 		else:
@@ -1927,13 +1936,13 @@ class RadioDialog(wx.Dialog):
 			self._liked_panel, label=_("Play on &Spotify")
 		)
 		self._liked_youtube_btn = wx.Button(
-			self._liked_panel, label=_("Play on YouTube (Alt+&O)")
+			self._liked_panel, label=_("Play on Y&ouTube")
 		)
 		self._liked_remove_btn = wx.Button(
-			self._liked_panel, label=_("Re&move (Alt+M)")
+			self._liked_panel, label=_("Re&move")
 		)
 		self._liked_refresh_btn = wx.Button(
-			self._liked_panel, label=_("R&efresh (Alt+E)")
+			self._liked_panel, label=_("R&efresh")
 		)
 
 		for btn in (

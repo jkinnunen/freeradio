@@ -74,6 +74,23 @@ class StationManager:
 		self._api_base = RADIO_BROWSER_MIRRORS[0]
 		return self._api_base
 
+	def _maybe_invalidate_mirror(self, mirror):
+		"""Increment the consecutive failure counter for the cached mirror.
+		If the counter reaches _MIRROR_FAIL_THRESHOLD, reset the cache so
+		the next request re-evaluates all mirrors from scratch.
+		Only has an effect when *mirror* is the currently cached mirror.
+		"""
+		if mirror != self._api_base:
+			return
+		self._api_base_failures += 1
+		if self._api_base_failures >= _MIRROR_FAIL_THRESHOLD:
+			log.warning(
+				"FreeRadio: mirror %s failed %d times, resetting cache",
+				mirror, self._api_base_failures,
+			)
+			self._api_base          = None
+			self._api_base_failures = 0
+
 	def _request(self, path, params=""):
 		"""
 		path  : e.g. "/stations/topvote/1000", with a leading slash
@@ -83,10 +100,10 @@ class StationManager:
 		Raises a RadioBrowserError subclass when all mirrors fail, so callers
 		can distinguish network problems from API/data problems.
 
-		Mirror cache: ilk başarılı mirror _api_base'e yazılır ve sonraki
-		isteklerde önce o denenir. Aynı mirror art arda _MIRROR_FAIL_THRESHOLD
-		kez hata verirse cache sıfırlanır; bir sonraki istekte tüm mirror'lar
-		yeniden değerlendirilir.
+		Mirror cache: the first successful mirror is stored in _api_base and
+		tried first on subsequent requests.  If that mirror fails
+		_MIRROR_FAIL_THRESHOLD times in a row, _maybe_invalidate_mirror()
+		resets the cache so all mirrors are re-evaluated on the next call.
 		"""
 		import socket
 		import urllib.error
@@ -100,7 +117,7 @@ class StationManager:
 		had_connection   = False
 		had_json_error   = False
 
-		# Bilinen çalışan mirror'ı listeye öne al; diğerleri yedek sırasında.
+		# Prioritise the known-good mirror; fall back to the rest in order.
 		if self._api_base and self._api_base in RADIO_BROWSER_MIRRORS:
 			ordered = [self._api_base] + [m for m in RADIO_BROWSER_MIRRORS if m != self._api_base]
 		else:
@@ -121,18 +138,10 @@ class StationManager:
 						"FreeRadio: JSON decode error from %s (%s): %.120s…",
 						mirror, exc, raw,
 					)
-					# Bu mirror'dan kötü veri geldi; sayacı artır / cache'i sıfırla.
-					if mirror == self._api_base:
-						self._api_base_failures += 1
-						if self._api_base_failures >= _MIRROR_FAIL_THRESHOLD:
-							log.warning(
-								"FreeRadio: mirror %s failed %d times, resetting cache",
-								mirror, self._api_base_failures,
-							)
-							self._api_base          = None
-							self._api_base_failures = 0
+					# Bad data from this mirror; increment failure counter / reset cache.
+					self._maybe_invalidate_mirror(mirror)
 					continue  # try next mirror
-				# Başarılı — cache'i güncelle, hata sayacını sıfırla.
+				# Success — update cache and reset failure counter.
 				if mirror != self._api_base:
 					log.info("FreeRadio: switching to mirror %s", mirror)
 				self._api_base          = mirror
@@ -145,41 +154,17 @@ class StationManager:
 					"FreeRadio: HTTP %d from %s — %s",
 					exc.code, mirror, exc.reason,
 				)
-				if mirror == self._api_base:
-					self._api_base_failures += 1
-					if self._api_base_failures >= _MIRROR_FAIL_THRESHOLD:
-						log.warning(
-							"FreeRadio: mirror %s failed %d times, resetting cache",
-							mirror, self._api_base_failures,
-						)
-						self._api_base          = None
-						self._api_base_failures = 0
+				self._maybe_invalidate_mirror(mirror)
 			except (TimeoutError, socket.timeout) as exc:
 				had_timeout = True
 				last_error = exc
 				log.warning("FreeRadio: timeout reaching %s", mirror)
-				if mirror == self._api_base:
-					self._api_base_failures += 1
-					if self._api_base_failures >= _MIRROR_FAIL_THRESHOLD:
-						log.warning(
-							"FreeRadio: mirror %s failed %d times, resetting cache",
-							mirror, self._api_base_failures,
-						)
-						self._api_base          = None
-						self._api_base_failures = 0
+				self._maybe_invalidate_mirror(mirror)
 			except (ConnectionError, OSError, urllib.error.URLError) as exc:
 				had_connection = True
 				last_error = exc
 				log.warning("FreeRadio: connection error (%s): %s", mirror, exc)
-				if mirror == self._api_base:
-					self._api_base_failures += 1
-					if self._api_base_failures >= _MIRROR_FAIL_THRESHOLD:
-						log.warning(
-							"FreeRadio: mirror %s failed %d times, resetting cache",
-							mirror, self._api_base_failures,
-						)
-						self._api_base          = None
-						self._api_base_failures = 0
+				self._maybe_invalidate_mirror(mirror)
 			except Exception as exc:
 				last_error = exc
 				log.warning("FreeRadio: unexpected error (%s): %s", mirror, exc)

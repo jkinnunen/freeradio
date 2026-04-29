@@ -96,11 +96,11 @@ Aşağıdaki tuşlar yalnızca İstasyon Tarayıcısı penceresi etkinken çalı
 | `Alt+R` | Arama alanına git | İmleci arama metin kutusuna taşır. |
 | `Alt+A` | Çevrimiçi ara | Arama alanındaki metni Radio Browser'da arar; ad, ülke ve tür aynı anda taranır. |
 | `Alt+V` | Favorilere ekle / çıkar | Seçili istasyonu favorilere ekler; zaten listedeyse çıkarır. |
-| `Alt+T` | Tüm İstasyonlar | Tüm İstasyonlar sekmesine geçer. |
-| `Alt+F` | Favoriler | Favoriler sekmesine geçer ve listeye odaklanır. |
-| `Alt+Y` | Kayıt | Kayıt sekmesine geçer. |
-| `Alt+Z` | Zamanlayıcı | Zamanlayıcı sekmesine geçer. |
-| `Alt+B` | Beğenilen Şarkılar | Beğenilen Şarkılar sekmesine geçer. |
+| `Alt+1` | Tüm İstasyonlar | Tüm İstasyonlar sekmesine geçer. |
+| `Alt+2` | Favoriler | Favoriler sekmesine geçer. |
+| `Alt+3` | Kayıt | Kayıt sekmesine geçer. |
+| `Alt+4` | Zamanlayıcı | Zamanlayıcı sekmesine geçer. |
+| `Alt+5` | Beğenilen Şarkılar | Beğenilen Şarkılar sekmesine geçer. |
 | `Alt+K` | Kapat | Pencereyi kapatır; eklenti arka planda çalmaya devam eder. |
 
 ## Favoriler
@@ -165,7 +165,7 @@ Girilen saat geçmişse kayıt ertesi güne planlanır. NVDA, kayıt başladığ
 
 ## Zamanlayıcı
 
-İstasyon tarayıcısında Zamanlayıcı sekmesini açın (`Alt+Z`). İki tür zamanlayıcı eklenebilir:
+İstasyon tarayıcısında Zamanlayıcı sekmesini açın (`Alt+4`). İki tür zamanlayıcı eklenebilir:
 
 **Alarm — radyoyu başlat:** Belirtilen saatte favoriler listesinden seçilen istasyonu otomatik olarak çalmaya başlar. İstasyonu ve saati SS:DD biçiminde girin.
 
