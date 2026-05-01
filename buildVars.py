@@ -18,12 +18,16 @@ addon_info = AddonInfo(
 	addon_description=_("""FreeRadio is an internet radio add-on for NVDA that provides seamless access to thousands of stations via the Radio Browser open directory. It features a fully accessible station browser with search, country filter, favourites management, and per-station audio profiles. Playback is handled by a prioritised backend chain (BASS, VLC, PotPlayer, Windows Media Player) with support for volume control, audio effects, output device selection, and simultaneous audio mirroring to a second device. Additional features include instant and scheduled recording, sleep and alarm timers, automatic ICY metadata announcements, Shazam-based music recognition, and a liked-songs log. All controls and shortcuts are designed for NVDA accessibility."""),
 	
 	# version
-	addon_version="2026.18.6",
+	addon_version="2026.18.7",
 	
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version
 	addon_changelog=_("""
-Tab shortcuts are now numeric: Alt+1 All Stations, Alt+2 Favourites, Alt+3 Recording, Alt+4 Timer, Alt+5 Liked Songs. The old letter-based shortcuts (Alt+T, Alt+F, Alt+Y, Alt+Z) have been removed.
+- **Alt+R (Search Box Shortcut):** Now switches to the All Stations tab before focusing the search box. This ensures F3/F4 and Enter always operate on the search results list, regardless of which tab was active before.
+- **F3/F4 in Search Results:** Fixed: after pressing Alt+R and searching, F3/F4 now correctly navigate and play from the search results.
+- **Liked Songs – Remove Confirmation:** A confirmation dialog is now shown before removing a song from the Liked Songs list.
+- **Ctrl+Win+P Double/Triple Press – New Actions:** Added four new options to the double and triple press menus in settings: Open Liked Songs tab, Open addon settings, Announce currently playing station, Stop radio.
+- **Ctrl+Win+P Multi-Press Fix:** Fixed a bug where the double-press action would still execute when triple-pressing. Each press now cancels the previous pending action before scheduling its own, so only the intended action runs.
 """),
 	
 	# Author(s)

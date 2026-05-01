@@ -333,38 +333,61 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				wx.CallAfter(self._open_dialog_on_tab, 2)
 			elif action == "timer":
 				wx.CallAfter(self._open_dialog_on_tab, 3)
+			elif action == "liked":
+				# Open the browser dialog and switch to the Liked Songs tab (index 4).
+				wx.CallAfter(self._open_dialog_on_tab, 4)
+			elif action == "settings":
+				# Open NVDA Settings directly on the FreeRadio category.
+				wx.CallAfter(
+					gui.mainFrame._popupSettingsDialog,
+					gui.NVDASettingsDialog,
+					FreeRadioSettingsPanel,
+				)
+			elif action == "announce":
+				# Announce the currently playing station without opening any dialog.
+				wx.CallAfter(self._announce_now)
+			elif action == "stop":
+				# Stop radio playback immediately.
+				wx.CallAfter(self._stop_from_dialog)
 
 		repeat = getLastScriptRepeatCount()
 
-		# Triple press
-		if repeat >= 2:
-			# Cancel double-press timer
-			timer = getattr(self, "_pause_resume_timer", None)
-			if timer:
-				timer.Stop()
-				self._pause_resume_timer = None
-			if _triple_action != "none":
-				_run_action(_triple_action)
-			return
-
-		# Double press
-		if repeat == 1:
-			if _double_action == "none":
-				return
-			# Cancel single-press timer
-			timer = getattr(self, "_pause_resume_timer", None)
-			if timer:
-				timer.Stop()
-				self._pause_resume_timer = None
-			_run_action(_double_action)
-			return
-
-		# Single press
+		# Snapshot playback state once — used only by the single-press handler.
 		_has_media  = self._player.has_media()
 		_is_playing = self._player.is_playing()
 		_last_url   = config.conf["freeradio"].get("last_station_url", "").strip()
 		_action     = config.conf["freeradio"].get("hotkey_p_action", "resume")
 
+		# Always cancel any pending timer so only the latest press schedules work.
+		old_timer = getattr(self, "_pause_resume_timer", None)
+		if old_timer:
+			old_timer.Stop()
+			self._pause_resume_timer = None
+
+		# --- Triple press ---
+		if repeat >= 2:
+			# The double-press action must NOT have run yet (its timer is cancelled above).
+			# Execute the triple action immediately.
+			if _triple_action != "none":
+				_run_action(_triple_action)
+			return
+
+		# --- Double press ---
+		if repeat == 1:
+			if _double_action == "none":
+				return
+			# If triple is also configured, delay execution so a third press can cancel it.
+			if _triple_action != "none":
+				def _do_double():
+					self._pause_resume_timer = None
+					_run_action(_double_action)
+				self._pause_resume_timer = wx.CallLater(350, _do_double)
+			else:
+				# No triple configured — run double immediately.
+				_run_action(_double_action)
+			return
+
+		# --- Single press ---
 		def _do_single_press():
 			self._pause_resume_timer = None
 			if _has_media:
@@ -381,15 +404,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				if _last_url:
 					self._resume_last_station()
 
-		# No delay needed if double-press is disabled
-		if _double_action == "none":
+		# If neither double nor triple is configured, act immediately.
+		if _double_action == "none" and _triple_action == "none":
 			_do_single_press()
 			return
 
-		# Double-press is enabled: delay single-press so a second keypress can cancel it
-		old_timer = getattr(self, "_pause_resume_timer", None)
-		if old_timer:
-			old_timer.Stop()
+		# At least double (or triple) is configured: delay single so further presses can cancel it.
 		self._pause_resume_timer = wx.CallLater(350, _do_single_press)
 
 	@script(
@@ -879,6 +899,37 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._stations      = []
 		self._current_index = -1
 		ui.message(_("Radio stopped"))
+
+	def _announce_now(self):
+		"""Announce the currently playing station name (and ICY track if available).
+		Used as a hotkey action so the user can get station info without opening any dialog.
+		Mirrors the single-press behaviour of script_whatsPlaying.
+		"""
+		if not self._player.has_media():
+			ui.message(_("FreeRadio is not active"))
+			return
+		name = self._player.get_current_name()
+		if self._player.is_playing():
+			def _read_and_announce():
+				from . import radioPlayer as _rp
+				icy = self._player.get_icy_title()
+				if not icy:
+					url = (
+						getattr(self._player, "_current_url_resolved", None)
+						or getattr(self._player, "_current_url", None)
+					)
+					if url:
+						icy = _rp._read_icy_title(url)
+				if icy:
+					msg = _("Playing: %(station)s — %(track)s") % {
+						"station": name, "track": icy
+					}
+				else:
+					msg = _("Playing: %s") % name
+				wx.CallAfter(ui.message, msg)
+			threading.Thread(target=_read_and_announce, daemon=True).start()
+		else:
+			ui.message(_("Paused: %s") % name)
 
 	def _on_audio_device_lost(self, lost_index):
 		"""Called from a background thread when the selected audio device is removed.
@@ -1627,13 +1678,17 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			_("Open station search"),
 			_("Open recording tab"),
 			_("Open timer tab"),
+			_("Open liked songs tab"),
+			_("Open addon settings"),
+			_("Announce currently playing station"),
+			_("Stop radio"),
 		]
 		self._hotkey_p_double = sHelper.addLabeledControl(
 			hotkey_p_double_label,
 			wx.Choice,
 			choices=hotkey_p_double_choices,
 		)
-		_double_map = ["none", "favorites", "search", "recording", "timer"]
+		_double_map = ["none", "favorites", "search", "recording", "timer", "liked", "settings", "announce", "stop"]
 		current_double = config.conf["freeradio"].get("hotkey_p_double", "none")
 		self._hotkey_p_double.SetSelection(
 			_double_map.index(current_double) if current_double in _double_map else 0
@@ -1646,13 +1701,17 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			_("Open station search"),
 			_("Open recording tab"),
 			_("Open timer tab"),
+			_("Open liked songs tab"),
+			_("Open addon settings"),
+			_("Announce currently playing station"),
+			_("Stop radio"),
 		]
 		self._hotkey_p_triple = sHelper.addLabeledControl(
 			hotkey_p_triple_label,
 			wx.Choice,
 			choices=hotkey_p_triple_choices,
 		)
-		_triple_map = ["none", "favorites", "search", "recording", "timer"]
+		_triple_map = ["none", "favorites", "search", "recording", "timer", "liked", "settings", "announce", "stop"]
 		current_triple = config.conf["freeradio"].get("hotkey_p_triple", "none")
 		self._hotkey_p_triple.SetSelection(
 			_triple_map.index(current_triple) if current_triple in _triple_map else 0
@@ -1952,12 +2011,12 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		config.conf["freeradio"]["hotkey_p_action"] = (
 			"resume" if self._hotkey_p_action.GetSelection() == 0 else "favorites"
 		)
-		_double_map = ["none", "favorites", "search", "recording", "timer"]
+		_double_map = ["none", "favorites", "search", "recording", "timer", "liked", "settings", "announce", "stop"]
 		sel = self._hotkey_p_double.GetSelection()
 		config.conf["freeradio"]["hotkey_p_double"] = (
 			_double_map[sel] if 0 <= sel < len(_double_map) else "none"
 		)
-		_triple_map = ["none", "favorites", "search", "recording", "timer"]
+		_triple_map = ["none", "favorites", "search", "recording", "timer", "liked", "settings", "announce", "stop"]
 		sel = self._hotkey_p_triple.GetSelection()
 		config.conf["freeradio"]["hotkey_p_triple"] = (
 			_triple_map[sel] if 0 <= sel < len(_triple_map) else "none"

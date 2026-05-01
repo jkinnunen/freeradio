@@ -1508,7 +1508,7 @@ class RadioDialog(wx.Dialog):
 			if tab == 0:  # All Stations
 				stations = self._stations
 				lst = self._all_list
-			elif tab == 1:  # favorites
+			elif tab == 1:  # Favourites
 				stations = self._manager.get_favorites()
 				lst = self._fav_list
 			else:
@@ -1526,7 +1526,7 @@ class RadioDialog(wx.Dialog):
 					self._play_callback(stations[next_idx], stations, next_idx, announce=True)
 					self._update_fav_button()
 					self._update_save_audio_btn()
-				return
+			return
 
 		if key == wx.WXK_F5:
 			vol = max(0, self._player.get_volume() - 10)
@@ -1636,7 +1636,14 @@ class RadioDialog(wx.Dialog):
 
 		if event.AltDown():
 			if key == ord("R"):
+				# Switch to All Stations tab first so that the notebook selection
+				# always matches the search box and its results list.  Without this,
+				# F3/F4 and Enter would still act on whichever tab was active before.
+				if self._notebook.GetSelection() != 0:
+					self._notebook.SetSelection(0)
+					self._apply_tab_side_effects(0)
 				self._search.SetFocus()
+				self._search.SelectAll()
 				return
 			if key == ord("A"):
 				self._on_api_search()
@@ -2048,6 +2055,17 @@ class RadioDialog(wx.Dialog):
 			return
 		song = self._liked_list.GetString(idx)
 		if song == _("No liked songs yet."):
+			return
+		# Ask for confirmation before removing the song.
+		dlg = wx.MessageDialog(
+			self,
+			_("Do you want to remove \"%s\" from liked songs?") % song,
+			_("Remove Song"),
+			wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION,
+		)
+		result = dlg.ShowModal()
+		dlg.Destroy()
+		if result != wx.ID_YES:
 			return
 		path = self._liked_songs_path()
 		try:
