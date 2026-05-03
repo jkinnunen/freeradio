@@ -18,6 +18,17 @@ _USER_AGENT = "FreeRadio-NVDA/1.0"
 _CHUNK      = 65536   # 64 KB read chunk
 
 
+class _IcyProtocolError(Exception):
+	"""Raised when a server replies with ICY 200 OK instead of HTTP."""
+
+
+def _is_icy_error(exc):
+	"""Return True when *exc* was caused by an ICY 200 OK status line."""
+	msg = str(exc).upper()
+	# http.client.BadStatusLine, ValueError, etc. all embed the bad line in str(exc)
+	return "ICY" in msg
+
+
 def _recordings_dir():
 	try:
 		import config as _cfg
@@ -44,6 +55,78 @@ def _make_output_path(station_name, ext="mp3"):
 	name  = _safe_filename(station_name)
 	fname = f"{name} - {ts}.{ext}"
 	return os.path.join(_recordings_dir(), fname)
+
+
+def _open_icy(url, timeout=20):
+	"""Open a Shoutcast/Icecast stream that responds with 'ICY 200 OK'.
+
+	urllib cannot parse the non-standard ICY status line, so we connect via a
+	raw socket, send a minimal HTTP/1.0 GET request, and consume the response
+	headers ourselves.  Returns a tuple (socket, headers_dict, body_prefix)
+	where body_prefix is any data already read past the header boundary.
+	Raises OSError / socket.error on failure.
+	"""
+	import socket
+	import re
+	from urllib.parse import urlparse
+
+	parsed   = urlparse(url)
+	host     = parsed.hostname
+	port     = parsed.port or 80
+	path     = (parsed.path or "/") + (";" if url.rstrip().endswith(";") else "")
+	# keep the trailing semicolon if the original URL had it
+	if url.rstrip().endswith(";") and not path.endswith(";"):
+		path += ";"
+	# Use the raw path+query from the original URL to avoid mangling
+	raw_path = parsed.path
+	if parsed.query:
+		raw_path += "?" + parsed.query
+	if not raw_path:
+		raw_path = "/"
+
+	sock = socket.create_connection((host, port), timeout=timeout)
+	request = (
+		f"GET {raw_path} HTTP/1.0\r\n"
+		f"Host: {host}:{port}\r\n"
+		f"User-Agent: {_USER_AGENT}\r\n"
+		f"Icy-MetaData: 0\r\n"
+		f"Connection: close\r\n"
+		f"\r\n"
+	)
+	sock.sendall(request.encode())
+
+	# Read until we find the blank line that ends the headers.
+	buf = b""
+	while b"\r\n\r\n" not in buf and b"\n\n" not in buf:
+		data = sock.recv(4096)
+		if not data:
+			break
+		buf += data
+		if len(buf) > 65536:   # safety limit
+			break
+
+	# Split at the first blank line
+	if b"\r\n\r\n" in buf:
+		header_raw, body_prefix = buf.split(b"\r\n\r\n", 1)
+	elif b"\n\n" in buf:
+		header_raw, body_prefix = buf.split(b"\n\n", 1)
+	else:
+		header_raw, body_prefix = buf, b""
+
+	lines   = header_raw.decode("utf-8", errors="ignore").splitlines()
+	status  = lines[0] if lines else ""
+	headers = {}
+	for line in lines[1:]:
+		if ":" in line:
+			k, _, v = line.partition(":")
+			headers[k.strip().lower()] = v.strip()
+
+	# Accept ICY 200 OK  or  HTTP/1.x 200
+	if not re.match(r"(ICY|HTTP/\S+)\s+200", status, re.IGNORECASE):
+		sock.close()
+		raise OSError(f"Unexpected status from ICY server: {status!r}")
+
+	return sock, headers, body_prefix
 
 
 def _guess_ext(url, content_type=""):
@@ -173,27 +256,30 @@ class _StreamWriter:
 		while not self._stop.is_set():
 			connected = False
 			try:
-				req = urllib.request.Request(
-					self._effective_url,
-					headers={"User-Agent": _USER_AGENT, "Icy-MetaData": "0"},
-				)
-				with urllib.request.urlopen(req, timeout=20) as resp:
-					if first:
-						ct  = resp.headers.get("Content-Type", "")
-						ext = _guess_ext(self._effective_url, ct)
-						base, _ = os.path.splitext(self.output_path)
-						self.output_path = base + "." + ext
-						log.info("FreeRadio Recorder: writing to %s (ct=%s)", self.output_path, ct)
-						first = False
+				self._run_once(first)
+				# _run_once returns normally only when the stream ends cleanly
+				# or stop is requested; reset first flag after first successful connect
+				first = False
+				fail_streak = 0
+				connected   = True
 
-					connected   = True
+			except _IcyProtocolError:
+				# Server returned ICY 200 OK — retry with raw socket path
+				log.info("FreeRadio Recorder: ICY protocol detected, switching to raw socket mode")
+				try:
+					self._run_icy(first)
+					first = False
 					fail_streak = 0
-					with open(self.output_path, "ab") as f:
-						while not self._stop.is_set():
-							chunk = resp.read(_CHUNK)
-							if not chunk:
-								break
-							f.write(chunk)
+					connected   = True
+				except Exception as e2:
+					if self._stop.is_set():
+						return
+					self._error = e2
+					fail_streak += 1
+					log.warning(
+						"FreeRadio Recorder: ICY connection error (streak=%d): %s",
+						fail_streak, e2,
+					)
 
 			except Exception as e:
 				if self._stop.is_set():
@@ -215,6 +301,62 @@ class _StreamWriter:
 				if self._stop.is_set():
 					return
 				time.sleep(0.1)
+
+	def _run_once(self, first):
+		"""Single connection attempt via urllib.  Raises _IcyProtocolError when
+		the server replies with 'ICY 200 OK' so the caller can switch modes."""
+		req = urllib.request.Request(
+			self._effective_url,
+			headers={"User-Agent": _USER_AGENT, "Icy-MetaData": "0"},
+		)
+		try:
+			resp_cm = urllib.request.urlopen(req, timeout=20)
+		except Exception as e:
+			# urllib raises a ValueError/http.client.BadStatusLine for ICY responses.
+			# The message reliably contains "ICY" in that case.
+			if _is_icy_error(e):
+				raise _IcyProtocolError() from e
+			raise
+
+		with resp_cm as resp:
+			if first:
+				ct  = resp.headers.get("Content-Type", "")
+				ext = _guess_ext(self._effective_url, ct)
+				base, _ = os.path.splitext(self.output_path)
+				self.output_path = base + "." + ext
+				log.info("FreeRadio Recorder: writing to %s (ct=%s)", self.output_path, ct)
+
+			with open(self.output_path, "ab") as f:
+				while not self._stop.is_set():
+					chunk = resp.read(_CHUNK)
+					if not chunk:
+						break
+					f.write(chunk)
+
+	def _run_icy(self, first):
+		"""Connect via raw socket to handle Shoutcast/Icecast ICY 200 OK servers."""
+		sock, headers, body_prefix = _open_icy(self._effective_url, timeout=20)
+		try:
+			if first:
+				ct  = headers.get("content-type", "")
+				ext = _guess_ext(self._effective_url, ct)
+				base, _ = os.path.splitext(self.output_path)
+				self.output_path = base + "." + ext
+				log.info("FreeRadio Recorder: ICY writing to %s (ct=%s)", self.output_path, ct)
+
+			with open(self.output_path, "ab") as f:
+				if body_prefix:
+					f.write(body_prefix)
+				while not self._stop.is_set():
+					chunk = sock.recv(_CHUNK)
+					if not chunk:
+						break
+					f.write(chunk)
+		finally:
+			try:
+				sock.close()
+			except Exception:
+				pass
 
 	def _run_hls(self):
 		"""Download HLS segments sequentially and write to a single file."""

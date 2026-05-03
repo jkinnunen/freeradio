@@ -1187,16 +1187,45 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				wx.CallAfter(_up_to_date)
 
 	def _check_internet(self, timeout=3):
-		"""Check internet connectivity via a TCP socket to Google DNS.
-		Returns True if reachable, False otherwise.
-		Uses a per-socket timeout to avoid side effects on other connections."""
+		"""More reliable internet control - multi-target."""
 		import socket
+		import urllib.request
+		
+		test_hosts = [
+			("8.8.8.8", 53),        # Google DNS
+			("1.1.1.1", 53),        # Cloudflare DNS  
+			("208.67.222.222", 53), # OpenDNS
+		]
+		
+		for host, port in test_hosts:
+			try:
+				s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				s.settimeout(timeout)
+				s.connect((host, port))
+				s.close()
+				return True
+			except Exception:
+				continue
+		
+		# Last resort: Try HTTP request (to Radio Browser API)
 		try:
-			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			s.settimeout(timeout)
-			s.connect(("8.8.8.8", 53))
-			s.close()
-			return True
+			req = urllib.request.Request(
+				"https://de1.api.radio-browser.info/json/stats",
+				headers={"User-Agent": "FreeRadio/1.0"}
+			)
+			with urllib.request.urlopen(req, timeout=timeout) as resp:
+				return resp.status == 200
+		except Exception:
+			pass
+		
+		# Try an HTTP site (for broader compatibility)
+		try:
+			req = urllib.request.Request(
+				"http://neverssl.com/online",
+				headers={"User-Agent": "FreeRadio/1.0"}
+			)
+			with urllib.request.urlopen(req, timeout=timeout) as resp:
+				return resp.status == 200
 		except Exception:
 			return False
 

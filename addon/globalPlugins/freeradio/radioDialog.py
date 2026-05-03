@@ -187,7 +187,7 @@ class RadioDialog(wx.Dialog):
 		self._country_search_timer  = None
 		self._country_search_cur    = None
 		self._country_search_anchor = None  # position before typing sequence started
-		# Type-ahead state for station list boxes (fav + all)
+		# Type-ahead state for station list boxes (one set per list)
 		self._list_search_str    = ""
 		self._list_search_timer  = None
 		self._list_search_cur    = None
@@ -394,6 +394,7 @@ class RadioDialog(wx.Dialog):
 		self._sched_add_btn.Bind(wx.EVT_BUTTON, self._on_sched_add)
 		self._sched_del_btn.Bind(wx.EVT_BUTTON, self._on_sched_del)
 		self._sched_list.Bind(wx.EVT_LISTBOX,   self._on_sched_selected)
+		self._sched_list.Bind(wx.EVT_CHAR,      self._on_list_char)
 
 	def _build_timer_tab(self):
 		"""Timer tab: start (alarm) or stop (sleep) the radio at a specific time."""
@@ -453,6 +454,7 @@ class RadioDialog(wx.Dialog):
 		self._timer_add_btn.Bind(wx.EVT_BUTTON,        self._on_timer_add)
 		self._timer_del_btn.Bind(wx.EVT_BUTTON,        self._on_timer_del)
 		self._timer_list.Bind(wx.EVT_LISTBOX,          self._on_timer_selected)
+		self._timer_list.Bind(wx.EVT_CHAR,             self._on_list_char)
 
 		self._timer_stations = []
 		self._timer_action_changed_update()
@@ -939,8 +941,9 @@ class RadioDialog(wx.Dialog):
 		"""Windows Explorer type-ahead.
 
 		Single character:
-		  - If the current item already starts with this character, advance to the next match.
-		  - Otherwise search from index 0.
+		  - Always advance to the next match after the current position (wraps around).
+		  - This means pressing "a" always moves forward, even if the current item
+		    already starts with "a".
 
 		Multiple characters typed quickly (before the reset timer fires):
 		  - The search starts from the position recorded before the typing sequence began (anchor).
@@ -983,11 +986,11 @@ class RadioDialog(wx.Dialog):
 			setattr(self, anchor_attr, anchor)
 
 		if len(buf) == 1:
-			# Single character: if the current item starts with it, advance to the next.
-			if (current is not None
-					and current != wx.NOT_FOUND
-					and 0 <= current < count
-					and get_string(current).lower().startswith(buf)):
+			# Single character: search forward from the item after the current one.
+			# This way the user always moves *past* the current position, regardless
+			# of whether the current item starts with this character or not.
+			# If no match is found wrapping around, fall back to index 0.
+			if current is not None and current != wx.NOT_FOUND and 0 <= current < count:
 				start = (current + 1) % count
 			else:
 				start = 0
@@ -1067,11 +1070,41 @@ class RadioDialog(wx.Dialog):
 		self._country_search_str   = ""
 		self._country_search_timer = None
 
+	def _do_list_typeahead(self, listbox, ch):
+		"""Core type-ahead dispatch shared by _on_list_char and _on_char_hook.
+
+		Each listbox gets its own isolated state so that typing in one list
+		never pollutes the search string, current index, or anchor of another.
+		"""
+		_list_state_map = {
+			id(self._all_list):   "_list_search_all",
+			id(self._fav_list):   "_list_search_fav",
+			id(self._sched_list): "_list_search_sched",
+			id(self._timer_list): "_list_search_timer",
+			id(self._liked_list): "_list_search_liked",
+		}
+		state_attr = _list_state_map.get(id(listbox), "_list_search_all")
+		self._typeahead(
+			ch         = ch,
+			get_count  = listbox.GetCount,
+			get_string = listbox.GetString,
+			get_sel    = listbox.GetSelection,
+			set_sel    = listbox.SetSelection,
+			fire_evt   = lambda: wx.PostEvent(
+				listbox,
+				wx.CommandEvent(wx.EVT_LISTBOX.typeId, listbox.GetId())),
+			state_attr = state_attr,
+		)
+
 	def _on_list_char(self, event):
-		"""Type-ahead search for station list boxes (_fav_list and _all_list).
+		"""Type-ahead search for _all_list and _fav_list via EVT_CHAR.
+
+		For _sched_list, _timer_list and _liked_list the type-ahead is handled
+		earlier in _on_char_hook so that the native Windows ListBox character
+		handler never gets a chance to interfere.
 
 		Matches standard Windows Explorer list behaviour:
-		- Single char: jump to first match; if already on a match, advance to next.
+		- Single char: jump to first match after current position; wraps around.
 		- Multiple chars typed quickly (within 600 ms): prefix search.
 		"""
 		key = event.GetUnicodeKey()
@@ -1086,17 +1119,8 @@ class RadioDialog(wx.Dialog):
 		if not ch.isprintable():
 			event.Skip()
 			return
-		self._typeahead(
-			ch         = ch,
-			get_count  = listbox.GetCount,
-			get_string = listbox.GetString,
-			get_sel    = listbox.GetSelection,
-			set_sel    = listbox.SetSelection,
-			fire_evt   = lambda: wx.PostEvent(
-				listbox,
-				wx.CommandEvent(wx.EVT_LISTBOX.typeId, listbox.GetId())),
-			state_attr = "_list_search",
-		)
+
+		self._do_list_typeahead(listbox, ch)
 
 	def _reset_list_search(self):
 		self._list_search_str   = ""
@@ -1663,6 +1687,25 @@ class RadioDialog(wx.Dialog):
 				self._on_tab_changed_index(tab_index)
 				return
 
+		# Type-ahead for lists where EVT_CHAR is unreliable because the native
+		# Windows ListBox control can consume WM_CHAR before wxPython dispatches
+		# EVT_CHAR.  _sched_list / _timer_list / _liked_list have no EVT_KEY_DOWN
+		# handler (unlike _all_list / _fav_list), making them more susceptible.
+		# Intercepting here — before event.Skip() — ensures the character is
+		# consumed entirely by our handler and never reaches the native control.
+		if (not event.ControlDown() and not event.AltDown()
+				and focused in (self._sched_list, self._timer_list, self._liked_list)):
+			ukey = event.GetUnicodeKey()
+			if ukey != wx.WXK_NONE and ukey >= 32:
+				ch = chr(ukey).lower()
+			elif 32 <= key <= 126:
+				ch = chr(key).lower()
+			else:
+				ch = None
+			if ch and ch.isprintable():
+				self._do_list_typeahead(focused, ch)
+				return
+
 		event.Skip()
 
 	def _handle_fav_move_x(self):
@@ -1963,6 +2006,7 @@ class RadioDialog(wx.Dialog):
 		sizer.Add(btn_row, 0, wx.LEFT | wx.BOTTOM, 5)
 		self._liked_panel.SetSizer(sizer)
 
+		self._liked_list.Bind(wx.EVT_CHAR,    self._on_list_char)
 		self._liked_list.Bind(wx.EVT_LISTBOX, self._on_liked_selected)
 		self._liked_spotify_btn.Bind(wx.EVT_BUTTON, self._on_liked_spotify)
 		self._liked_youtube_btn.Bind(wx.EVT_BUTTON, self._on_liked_youtube)
