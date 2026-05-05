@@ -30,7 +30,7 @@ NVDA Menüsü → Tercihler → Girdi Hareketleri → FreeRadio bölümünden ye
 | `Ctrl+Win+↑` | Ses artır | Ses seviyesini 10 birim artırır; azami 100. |
 | `Ctrl+Win+↓` | Ses azalt | Ses seviyesini 10 birim düşürür; asgari 0. |
 | `Ctrl+Win+V` | Favorilere ekle | O an çalan istasyonu favoriler listesine ekler. İstasyon zaten listedeyse bildirir. |
-| `Ctrl+Win+İ` | İstasyon bilgisi | Çalan istasyonu seslendirir. İki kez basıldığında ülke, tür, bit hızı gibi ayrıntıları bir iletişim kutusunda gösterir. Üç kez basıldığında çalan parça bilgisi (ICY metadata) varsa panoya kopyalar; yoksa Shazam ile müzik tanıma başlatır. |
+| `Ctrl+Win+İ` | İstasyon bilgisi | Çalan istasyonu seslendirir. İki kez basıldığında ülke, tür, bit hızı gibi ayrıntıları bir iletişim kutusunda gösterir. Üç kez basıldığında çalan parça bilgisi (ICY metadata) varsa panoya kopyalar; yoksa Shazam ile müzik tanıma başlatır. Dört kez basıldığında çalan parça bilgisi (ICY metadata) yanlışsa müzik tanıma servisini başlatmaya zorlar. |
 | `Ctrl+Win+M` | Ses yansıtma | O an çalan akışı ek bir çıkış aygıtına yansıtır. Yansıtma zaten aktifse durdurur. |
 | `Ctrl+Win+E` | Anlık kayıt | Çalan istasyonu kaydetmeye başlar. Tekrar basıldığında kaydı durdurur; oynatma kesintisiz sürer. |
 | `Ctrl+Win+W` | Kayıt klasörünü aç | Kaydedilen dosyaların bulunduğu klasörü Dosya Gezgini'nde açar. |

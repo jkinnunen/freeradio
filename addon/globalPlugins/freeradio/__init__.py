@@ -55,6 +55,7 @@ def _init_config():
 		"save_liked_songs":       "boolean(default=False)",
 		"recordings_dir":         "string(default='')",
 		"auto_check_updates":     "boolean(default=True)",
+		"disable_internet_check": "boolean(default=False)",
 	}
 
 _init_config()
@@ -1569,9 +1570,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return
 
 		# Check internet connectivity before attempting to stream
-		if not self._check_internet():
-			ui.message(_("No internet connection. Please check your connection and try again."))
-			return
+		# (skipped if the user has disabled this check in settings)
+		if not config.conf["freeradio"].get("disable_internet_check", False):
+			if not self._check_internet():
+				ui.message(_("No internet connection. Please check your connection and try again."))
+				return
 
 		try:
 			config.conf["freeradio"]["last_station_url"]  = url_resolved or url
@@ -1851,6 +1854,16 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		sHelper.addItem(_default_hint)
 		rec_dir_browse.Bind(wx.EVT_BUTTON, self._on_browse_recordings_dir)
 
+		# --- Internet check ---
+		self._disable_internet_check = wx.CheckBox(
+			self,
+			label=_("&Disable internet connectivity check before playing (recommended if DNS is blocked)"),
+		)
+		self._disable_internet_check.SetValue(
+			config.conf["freeradio"].get("disable_internet_check", False)
+		)
+		sHelper.addItem(self._disable_internet_check)
+
 		# --- Updates ---
 		self._auto_check_updates = wx.CheckBox(
 			self,
@@ -2109,6 +2122,7 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		
 		config.conf["freeradio"]["recordings_dir"] = self._recordings_dir.GetValue().strip()
 		config.conf["freeradio"]["auto_check_updates"] = self._auto_check_updates.GetValue()
+		config.conf["freeradio"]["disable_internet_check"] = self._disable_internet_check.GetValue()
 
 		for plugin in globalPluginHandler.runningPlugins:
 			if isinstance(plugin, GlobalPlugin):

@@ -30,7 +30,7 @@ All shortcuts can be reassigned from NVDA Menu → Preferences → Input Gesture
 | `Ctrl+Win+↑` | Volume up | Increases volume by 10; maximum 100. |
 | `Ctrl+Win+↓` | Volume down | Decreases volume by 10; minimum 0. |
 | `Ctrl+Win+V` | Add to favourites | Adds the currently playing station to the favourites list. Announces if the station is already in the list. |
-| `Ctrl+Win+I` | Station info | Announces the currently playing station name. Press twice to show details such as country, genre and bitrate in a dialog. Press three times to copy the current track info (ICY metadata) to the clipboard if available; if no metadata is present, starts Shazam music recognition instead. |
+| `Ctrl+Win+I` | Station info | Announces the currently playing station name. Press twice to show details such as country, genre and bitrate in a dialog. Press three times to copy the current track info (ICY metadata) to the clipboard if available; if no metadata is present, starts Shazam music recognition instead. Press four times to force music recognition in case of wrong ISI metadata. |
 | `Ctrl+Win+M` | Audio mirror | Mirrors the current stream to an additional audio output device simultaneously. Press again to stop mirroring. |
 | `Ctrl+Win+E` | Instant recording | Starts recording the current station. Press again to stop; playback continues uninterrupted. |
 | `Ctrl+Win+W` | Open recordings folder | Opens the folder containing recorded files in File Explorer. |

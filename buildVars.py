@@ -18,13 +18,14 @@ addon_info = AddonInfo(
 	addon_description=_("""FreeRadio is an internet radio add-on for NVDA that provides seamless access to thousands of stations via the Radio Browser open directory. It features a fully accessible station browser with search, country filter, favourites management, and per-station audio profiles. Playback is handled by a prioritised backend chain (BASS, VLC, PotPlayer, Windows Media Player) with support for volume control, audio effects, output device selection, and simultaneous audio mirroring to a second device. Additional features include instant and scheduled recording, sleep and alarm timers, automatic ICY metadata announcements, Shazam-based music recognition, and a liked-songs log. All controls and shortcuts are designed for NVDA accessibility."""),
 	
 	# version
-	addon_version="2026.18.8",
+	addon_version="2026.19.0",
 	
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version
 	addon_changelog=_("""
-- **Fixed recording from Shoutcast/Icecast stations that respond with `ICY 200 OK` instead of a standard HTTP status line (e.g. Rádio Janko Hraško). Python's `urllib` cannot parse the non-standard ICY protocol, so a raw socket fallback was added that handles the connection manually.**
-- - Improved internet connectivity check: now tests multiple DNS servers (Google, Cloudflare, OpenDNS) and falls back to HTTP requests (Radio Browser API, neverssl.com) before reporting no connection. Fixes false "no internet connection" errors on networks that block Google DNS.
+- Small fixes in music recognition.
+- Added a checkbox in to the settings dialog for disabling internet connectivity check. Recommended for the users experiencing slowness before playing the stations.
+- Added the possibility to force music recognition. It can be triggered  with fourth press of "what's playing" shortcut (ctrl+win+I).
 """),
 	
 	# Author(s)
