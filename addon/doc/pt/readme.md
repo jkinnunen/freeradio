@@ -32,9 +32,9 @@ Todos os atalhos podem ser reatribuídos em Menu NVDA → Preferências → Defi
 | `Ctrl+Win+↑` | Aumentar volume | Aumenta o volume em 10; máximo 100. |
 | `Ctrl+Win+↓` | Diminuir volume | Diminui o volume em 10; mínimo 0. |
 | `Ctrl+Win+V` | Adicionar aos favoritos | Adiciona a estação em reprodução à lista de favoritos. Anuncia se a estação já está na lista. |
-| `Ctrl+Win+I` | Informação da estação | Anuncia o nome da estação em reprodução. Premir duas vezes mostra detalhes como país, género e bitrate numa caixa de diálogo. Premir três vezes copia as informações da faixa atual (metadados ICY) para a área de transferência, se disponíveis; se não existirem metadados, inicia o reconhecimento musical Shazam. |
+| `Ctrl+Win+I` | Informação da estação | Anuncia o nome da estação em reprodução. Premir duas vezes mostra detalhes como país, género e bitrate numa caixa de diálogo. Premir três vezes copia as informações da faixa atual (metadados ICY) para a área de transferência, se disponíveis; se não existirem metadados, inicia o reconhecimento musical Shazam. Premir quatro vezes força o reconhecimento musical em caso de metadados ICY incorretos. |
 | `Ctrl+Win+M` | Espelho de áudio | Espelha a transmissão atual para um dispositivo de saída de áudio adicional em simultâneo. Prima novamente para parar o espelhamento. |
-| `Ctrl+Win+E` | Gravação instantânea | Inicia a gravação da estação atual. Prima novamente para parar; a reprodução continua sem interrupção. |
+| `Ctrl+Win+E` | Gravação instantânea | Prima uma vez para iniciar a gravação da estação atual; prima novamente para parar. Prima **duas vezes** para iniciar uma **gravação de canção** — o ficheiro recebe o nome da faixa atual e a gravação para automaticamente quando a faixa muda. Prima duas vezes novamente enquanto uma gravação de canção está ativa para terminá-la antecipadamente. A reprodução continua sem interrupção em todos os modos de gravação. Disponível apenas em estações que difundem metadados ICY. |
 | `Ctrl+Win+W` | Abrir pasta de gravações | Abre a pasta com os ficheiros gravados no Explorador de Ficheiros. |
 
 Os atalhos seguinte/anterior apenas navegam na lista de favoritos; não funcionam com a lista de todas as estações. Quando uma lista está em foco na janela do navegador, as teclas de seta esquerda e direita têm a mesma função — consulte Atalhos na Caixa de Diálogo.
@@ -159,6 +159,8 @@ As gravações são guardadas por predefinição em `Documents\FreeRadio Recordi
 
 **Gravação instantânea:** Enquanto uma estação está a reproduzir, prima `Ctrl+Win+E`. Prima novamente para parar. A reprodução continua sem interrupção.
 
+**Gravação de canção:** Prima `Ctrl+Win+E` **duas vezes** rapidamente enquanto uma estação que difunde metadados ICY está a reproduzir. A gravação inicia imediatamente e recebe o nome do título da faixa atual. Quando a faixa muda, a gravação para automaticamente e o NVDA anuncia o nome do ficheiro guardado. Se pretender terminar a gravação antes de a faixa terminar, prima `Ctrl+Win+E` duas vezes novamente. Se a estação atual não difundir metadados ICY, a gravação de canção não está disponível e o NVDA irá informá-lo.
+
 **Gravação agendada:** Abra o separador Gravação no navegador. Selecione uma estação dos seus favoritos, introduza a hora de início no formato HH:MM e a duração em minutos, depois escolha um modo de gravação:
 
 - **Gravar enquanto ouve** — reproduz e grava em simultâneo. É iniciado um backend de reprodução seguindo a ordem de prioridade BASS → VLC → PotPlayer → Windows Media Player.
@@ -196,6 +198,8 @@ As seguintes opções podem ser configuradas em Menu NVDA → Preferências → 
 | Caminho do wmplayer.exe | Introduza aqui o caminho para o Windows Media Player, se necessário. |
 | Caminho do PotPlayer | Se o PotPlayer estiver numa localização não padrão, o seu caminho pode ser introduzido aqui. |
 | Pasta de gravações | Define a pasta onde os ficheiros gravados são guardados. Se deixado em branco, é utilizada a localização predefinida `Documents\FreeRadio Recordings\`. Um botão Procurar permite selecionar a pasta de forma interativa. As alterações têm efeito imediatamente após guardar. |
+| Verificar atualizações automaticamente | Quando ativado, é efetuada uma verificação de atualizações em segundo plano sempre que o NVDA inicia; é emitida uma notificação se for encontrada uma nova versão. Quando desativado, as verificações automáticas são interrompidas mas as verificações manuais continuam disponíveis. |
+| Desativar verificação de conectividade à Internet antes de reproduzir | Recomendado para utilizadores que experimentam um atraso antes de uma estação começar a reproduzir. Também útil quando o DNS está bloqueado. |
 
 ## Anúncio Automático de Mudanças de Faixa
 
@@ -232,6 +236,21 @@ Ordem de prioridade dos backends:
 2. **VLC** — assume o controlo se o BASS falhar. Pesquisado automaticamente nas localizações de instalação comuns, pastas de perfil de utilizador e no PATH do sistema.
 3. **PotPlayer** — tentado se o VLC não for encontrado. Pesquisado automaticamente nas localizações de instalação comuns.
 4. **Windows Media Player** — utilizado como último recurso; requer que o componente WMP esteja instalado no sistema.
+
+## Verificação de Atualizações
+
+O FreeRadio verifica automaticamente a existência de novas versões através do GitHub.
+
+**Verificação automática:** É executada silenciosamente em segundo plano 15 segundos após o NVDA iniciar. Se for encontrada uma nova versão, é emitida uma notificação; se não for encontrada nenhuma, não é apresentada qualquer mensagem.
+
+**Verificação manual:** Pode ser acionada em qualquer altura em Ferramentas NVDA → FreeRadio → **Verificar Atualizações…**. Quando iniciada desta forma, o resultado é anunciado mesmo que a versão esteja atualizada.
+
+**Quando é encontrada uma atualização:** Abre-se uma caixa de diálogo com o número da versão e a sua versão instalada.
+
+- Se estiver disponível um ficheiro `.nvda-addon` diretamente descarregável na versão do GitHub, é apresentado o botão **Descarregar e Instalar**. Após confirmação, o ficheiro é descarregado em segundo plano, o NVDA anuncia quando o descarregamento inicia e o ecrã de instalação do NVDA abre automaticamente.
+- Se não estiver disponível uma ligação de descarregamento direto, é apresentado o botão **Abrir Página** e a página da versão do GitHub abre no browser predefinido.
+
+**Para desativar as verificações automáticas:** Desative a opção **Verificar atualizações automaticamente** em Menu NVDA → Preferências → Definições → FreeRadio.
 
 ## Licença
 

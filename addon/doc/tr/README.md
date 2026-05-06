@@ -32,14 +32,14 @@ NVDA Menüsü → Tercihler → Girdi Hareketleri → FreeRadio bölümünden ye
 | `Ctrl+Win+V` | Favorilere ekle | O an çalan istasyonu favoriler listesine ekler. İstasyon zaten listedeyse bildirir. |
 | `Ctrl+Win+İ` | İstasyon bilgisi | Çalan istasyonu seslendirir. İki kez basıldığında ülke, tür, bit hızı gibi ayrıntıları bir iletişim kutusunda gösterir. Üç kez basıldığında çalan parça bilgisi (ICY metadata) varsa panoya kopyalar; yoksa Shazam ile müzik tanıma başlatır. Dört kez basıldığında çalan parça bilgisi (ICY metadata) yanlışsa müzik tanıma servisini başlatmaya zorlar. |
 | `Ctrl+Win+M` | Ses yansıtma | O an çalan akışı ek bir çıkış aygıtına yansıtır. Yansıtma zaten aktifse durdurur. |
-| `Ctrl+Win+E` | Anlık kayıt | Çalan istasyonu kaydetmeye başlar. Tekrar basıldığında kaydı durdurur; oynatma kesintisiz sürer. |
+| `Ctrl+Win+E` | Anlık kayıt | Bir kez basıldığında çalan istasyonu kaydetmeye başlar; tekrar basıldığında durdurur. **İki kez** basıldığında **şarkı kaydı** başlar — dosya o anki parça adıyla adlandırılır ve parça değiştiğinde kayıt otomatik olarak durur. Şarkı kaydı aktifken tekrar iki kez basılması kaydı erken sonlandırır. Oynatma tüm kayıt modlarında kesintisiz sürer. Yalnızca ICY metadata yayınlayan istasyonlarda kullanılabilir. |
 | `Ctrl+Win+W` | Kayıt klasörünü aç | Kaydedilen dosyaların bulunduğu klasörü Dosya Gezgini'nde açar. |
 
 Sonraki / önceki kısayollar yalnızca favoriler listesinde dolaşır; tüm istasyonlar listesinde çalışmaz. Tarayıcı penceresinde listeler odaklanmışken sol ve sağ ok tuşları da aynı işlevi görür: bkz. Diyalog İçi Kısayollar.
 
 ## İstasyon Tarayıcısı
 
-FreeRadio ayrıca NVDA Araçlar menüsüne bir alt menü ekler. Bu alt menüden İstasyon Tarayıcısı'nı ve FreeRadio Ayarları'nı doğrudan açabilirsiniz.
+FreeRadio ayrıca NVDA Araçlar menüsüne **FreeRadio** adlı bir alt menü ekler. Bu alt menüden İstasyon Tarayıcısı'nı ve FreeRadio Ayarları'nı doğrudan açabilirsiniz.
 
 `Ctrl+Win+R` ile açılan pencerede beş sekme bulunur: Tüm İstasyonlar, Favoriler, Kayıt, Zamanlayıcı ve Beğenilen Şarkılar. Sekmeler arasında `Ctrl+Tab` ile dolaşılabilir.
 
@@ -57,7 +57,7 @@ Listede bir istasyon seçiliyken **İstasyon Detayları** düğmesi, o istasyona
 
 Aşağıdaki tuşlar yalnızca İstasyon Tarayıcısı penceresi etkinken çalışır.
 
-#### F Tuşları
+### F Tuşları
 
 | Kısayol | İşlev | Açıklama |
 |---|---|---|
@@ -70,7 +70,7 @@ Aşağıdaki tuşlar yalnızca İstasyon Tarayıcısı penceresi etkinken çalı
 | `F7` | Duraklat / devam et | Çalan istasyon varsa duraklatır; duraklatılmışsa ve medya yüklüyse oynatmayı sürdürür. |
 | `F8` | Durdur | Çalan istasyonu tamamen durdurur ve oynatıcıyı sıfırlar. |
 
-#### Liste ve Gezinme Kısayolları
+### Liste ve Gezinme Kısayolları
 
 | Kısayol | İşlev | Açıklama |
 |---|---|---|
@@ -82,20 +82,20 @@ Aşağıdaki tuşlar yalnızca İstasyon Tarayıcısı penceresi etkinken çalı
 | `Ctrl+Shift+Tab` | Önceki sekme | Bir önceki sekmeye döner. |
 | `Escape` | Gizle | Pencereyi gizler; eklenti arka planda çalmaya devam eder. |
 
-#### Ses Kısayolları
+### Ses Kısayolları
 
 | Kısayol | İşlev | Açıklama |
 |---|---|---|
 | `Ctrl+↑` | Ses artır | Ses seviyesini 10 birim artırır. Yalnızca tarayıcı penceresi açıkken çalışır. |
 | `Ctrl+↓` | Ses azalt | Ses seviyesini 10 birim düşürür. Yalnızca tarayıcı penceresi açıkken çalışır. |
 
-#### Alt Tuşu Kısayolları
+### Alt Kısayolları
 
 | Kısayol | İşlev | Açıklama |
 |---|---|---|
-| `Alt+R` | Arama alanına git | İmleci arama metin kutusuna taşır. |
-| `Alt+A` | Çevrimiçi ara | Arama alanındaki metni Radio Browser'da arar; ad, ülke ve tür aynı anda taranır. |
-| `Alt+V` | Favorilere ekle / çıkar | Seçili istasyonu favorilere ekler; zaten listedeyse çıkarır. |
+| `Alt+R` | Arama alanına git | Odağı arama metin kutusuna taşır. |
+| `Alt+A` | Çevrimiçi ara | Arama alanındaki metinle Radio Browser'da arama yapar; ad, ülke ve tür eş zamanlı aranır. |
+| `Alt+V` | Favori ekle / kaldır | Seçili istasyonu favorilere ekler; zaten listedeyse kaldırır. |
 | `Alt+1` | Tüm İstasyonlar | Tüm İstasyonlar sekmesine geçer. |
 | `Alt+2` | Favoriler | Favoriler sekmesine geçer. |
 | `Alt+3` | Kayıt | Kayıt sekmesine geçer. |
@@ -105,63 +105,66 @@ Aşağıdaki tuşlar yalnızca İstasyon Tarayıcısı penceresi etkinken çalı
 
 ## Favoriler
 
-Favoriler listesi, kalıcı olarak saklanan kişisel istasyon koleksiyonudur. Bir istasyonu eklemek için listede seçin ve Favorilere Ekle düğmesine basın ya da `Alt+V` kısayolunu kullanın. Aynı kısayol, listede zaten bulunan bir istasyon seçiliyken onu listeden çıkarır.
+Favoriler listesi, kalıcı olarak saklanan kişisel bir istasyon koleksiyonudur. İstasyon eklemek için listeden istasyonu seçip Favorilere Ekle düğmesine basın ya da `Alt+V` kısayolunu kullanın. Seçili istasyon zaten listedeyse aynı kısayol istasyonu listeden kaldırır.
 
-Favoriler `Ctrl+Win+→` ve `Ctrl+Win+←` kısayollarıyla çalınır; bu kısayollar tarayıcı penceresi açık olmasa bile çalışır.
+Favoriler `Ctrl+Win+→` ve `Ctrl+Win+←` ile çalınabilir; bu kısayollar tarayıcı penceresi açık olmasa da çalışır.
 
-### İstasyona Özel Ses Profili
+### Favorileri Yeniden Sıralama
 
-Favoriler sekmesinde bir istasyon seçiliyken **Ses Profilini Bu İstasyon İçin Kaydet** düğmesine basıldığında o anki ses seviyesi ve aktif efektler o istasyonla ilişkilendirilir. Farklı bir istasyona geçildiğinde kaydedilmiş profil otomatik olarak uygulanır; istasyondan ayrıldığında ise eklentinin genel ses ayarlarına geri dönülür. Böylece her istasyon için ayrı ses seviyesi ve efekt kombinasyonu kullanılabilir.
-
-Bir istasyona profil kaydedilmişse yanında **Ses Profilini Temizle** düğmesi de görünür. Bu düğmeye basıldığında profil silinir ve o istasyon için bir daha özel ayar uygulanmaz.
-
-Profil kaydı ve temizleme düğmeleri yalnızca Favoriler sekmesinde, listeden bir istasyon seçiliyken etkinleşir. Listede gezinirken (ok tuşları, F3/F4) düğmeler seçilen istasyona göre otomatik olarak güncellenir.
-
-### Sıralama Değiştirme
-
-Favoriler sekmesinde bir istasyon seçiliyken `X` tuşuna basın; istasyon taşıma moduna girilir ve bir bip sesi duyulur. Ok tuşlarıyla listede hedef konuma ilerleyin, ardından `X` tuşuna tekrar basın. İstasyon seçilen konuma bırakılır ve yeni sıra hemen kaydedilir. Aynı konumda tekrar `X` basılırsa taşıma iptal edilir.
+Favoriler sekmesinde bir istasyon seçiliyken `X` tuşuna basarak taşıma moduna girin — bir bip sesi duyarsınız. Ok tuşlarıyla hedef konuma gidin, ardından `X` tuşuna tekrar basın. İstasyon seçilen konuma yerleştirilir ve yeni sıra anında kaydedilir. Aynı konumda tekrar `X` tuşuna basılması taşımayı iptal eder.
 
 ### Özel İstasyon Ekleme
 
-Radio Browser'da listelenmeyen bir istasyonu elle eklemek için Özel İstasyon Ekle düğmesini kullanın. Açılan iletişim kutusunda istasyon adını ve akış URL'sini girerek doğrudan favorilere ekleyebilirsiniz. Özel istasyonlar diğer favorilerle aynı şekilde çalınır ve sıralanabilir.
+Radio Browser'da bulunmayan bir istasyon eklemek için Özel İstasyon Ekle düğmesini kullanın. Açılan iletişim kutusuna istasyon adını ve akış adresini girerek istasyonu doğrudan favorilerinize ekleyebilirsiniz. Özel istasyonlar diğer favoriler gibi çalınabilir ve yeniden sıralanabilir.
+
+### İstasyon Ses Profili
+
+Favoriler sekmesinde per-istasyon ses ayarlarını yönetmek için iki düğme bulunur:
+
+**Bu İstasyon İçin Ses Profili Kaydet** — mevcut ses seviyesini ve aktif efektleri (chorus, EQ vb.) o istasyona özgü bir profil olarak kaydeder. Bu istasyon her çalmaya başladığında kaydedilmiş ses seviyesi ve efektler otomatik olarak uygulanır; global varsayılanların yerine geçer.
+
+**Ses Profilini Temizle** — seçili istasyondaki kayıtlı ses profilini kaldırır. Temizlendikten sonra istasyon global ses seviyesi ve efekt ayarlarına geri döner. Bu düğme yalnızca seçili istasyonda kayıtlı bir profil bulunduğunda etkinleşir.
+
+Her iki düğme de favoriler listesinin altında yer alır ve yalnızca listeden bir istasyon seçiliyken etkin olur.
 
 ## Müzik Tanıma
 
-`Ctrl+Win+İ` kısayoluna üç kez basıldığında FreeRadio, o an çalan akışı Shazam üzerinden tanımaya çalışır. Tanıma işlemi yalnızca ICY metadata (istasyon tarafından yayınlanan parça bilgisi) mevcut olmadığında başlatılır; metadata varsa bunun yerine bilgi panoya kopyalanır.
+`Ctrl+Win+İ` kısayoluna üç kez basıldığında çalan akış için Shazam tabanlı müzik tanıma başlar. Tanıma yalnızca ICY metadata (istasyon tarafından yayınlanan parça bilgisi) mevcut olmadığında başlar; metadata varsa bunun yerine panoya kopyalanır.
 
-Tanıma şu adımlarla çalışır: ffmpeg ile akıştan kısa bir ses örneği alınır, Shazam imza algoritması uygulanır ve sonuç Shazam sunucularına gönderilir. Tanıma başarılı olursa parça adı, sanatçı, albüm ve yayın yılı NVDA ile seslendirilir ve otomatik olarak panoya kopyalanır. **Beğenilen şarkıları metin dosyasına kaydet** seçeneği açıksa tanıma sonucu `likedSongs.txt` dosyasına da eklenir.
+Tanıma şu şekilde çalışır: ffmpeg kullanılarak akıştan kısa bir ses örneği alınır, Shazam parmak izi algoritması uygulanır ve sonuç Shazam sunucularına gönderilir. Tanıma başarılı olursa parça adı, sanatçı, albüm ve yayın yılı NVDA tarafından seslendirilir ve otomatik olarak panoya kopyalanır. **Beğenilen şarkıları metin dosyasına kaydet** seçeneği açıksa tanıma sonucu `likedSongs.txt` dosyasına da eklenir.
 
-**Sesli geri bildirim:** Tanıma başladığında iki yükselen bip, bittiğinde iki alçalan bip duyulur. İşlem süresince her 2 saniyede bir kısa bir bip çalar.
+**Sesli geri bildirim:** Tanıma başladığında iki yükselen bip, bittiğinde iki alçalan bip sesi duyulur. İşlem süresince her 2 saniyede bir kısa bir bip çalar.
 
-**Gereksinim:** ffmpeg.exe gereklidir. Eklenti klasörüne yerleştirilen ffmpeg.exe otomatik olarak kullanılır; farklı bir konumdaysa Ayarlar'dan yol belirtilebilir. ffmpeg'i [ffmpeg.org](https://ffmpeg.org/download.html) adresinden edinebilirsiniz.
+**Gereksinim:** ffmpeg.exe gereklidir. Eklenti klasörüne yerleştirilen ffmpeg.exe otomatik olarak kullanılır; farklı bir konumdaysa yol Ayarlar'dan belirtilebilir. ffmpeg'i [ffmpeg.org](https://ffmpeg.org/download.html) adresinden indirin.
 
 ## Ses Yansıtma
 
-`Ctrl+Win+M` kısayolu, o an çalan akışı ikinci bir ses çıkış aygıtına eş zamanlı olarak yansıtır. Ana oynatma hiç kesintiye uğramadan devam ederken aynı ses farklı bir aygıtta da duyulur.
+`Ctrl+Win+M` kısayolu, çalan akışı eş zamanlı olarak ikinci bir ses çıkış aygıtına yansıtır. Hoparlör ve kulaklık gibi iki farklı aygıttan aynı anda dinlemek için kullanışlıdır.
 
-Kısayola ilk basışta sistemdeki çıkış aygıtlarını listeleyen bir seçim kutusu açılır. Bir aygıt seçildiğinde yansıtma anında başlar. Kısayola tekrar basıldığında yansıtma durdurulur.
+İlk basışta mevcut çıkış aygıtlarını listeleyen bir seçim iletişim kutusu açılır. Bir aygıt seçildiğinde yansıtma başlar ve ana oynatma kesintisiz devam eder. Kısayola tekrar basıldığında yansıtma durdurulur.
 
 **Kullanım senaryoları:**
+- **Hoparlör + kulaklık** — Siz bilgisayar hoparlöründen dinlerken bir misafirin aynı yayını kulaklıkla takip etmesini sağlayın.
+- **Kayıt kurulumu** — Ana çıkışı hoparlöre, ikinci çıkışı harici bir kayıt cihazına veya ses arabirimine yönlendirin.
+- **Çok odalı** — Bluetooth hoparlör ve dahili hoparlörden eş zamanlı çalın; sesi başka bir odaya taşımak için ek yazılım gerekmez.
+- **Uzaktan izleme** — Ekran paylaşımı veya uzak masaüstü oturumunda hem yerel hem de uzak taraf aynı akışı eş zamanlı duyabilir.
 
-- **Hoparlör + kulaklık:** Bilgisayar hoparlörlerinden dinlerken bir misafirin de kulaklıktan aynı yayını takip etmesini sağlar.
-- **Kayıt kurulumu:** Ana çıkışı hoparlöre, ikinci çıkışı harici bir kayıt cihazına veya ses kartı girişine yönlendirerek dış kayıt yapılabilir.
-- **Çoklu oda:** Bluetooth hoparlör ve dahili hoparlör aynı anda çaldırılabilir; uzak bir odaya ses taşımak için ek yazılım gerekmez.
-- **Uzaktan izleme:** Bir ekran paylaşımı veya uzak masaüstü oturumunda, yerel ve uzak tarafın aynı yayını eş zamanlı duyması sağlanabilir.
-
-Yansıtma aktifken ses seviyesi değiştirilirse (`Ctrl+Win+↑` / `Ctrl+Win+↓`) her iki çıkış da eş zamanlı olarak güncellenir. Ses yansıtma yalnızca BASS arka ucu aktifken kullanılabilir.
+> **Not:** Ses yansıtma yalnızca BASS arka ucu aktifken kullanılabilir. Yansıtma aktifken ses seviyesi değiştirilirse her iki çıkış da eş zamanlı güncellenir.
 
 ## Kayıt
 
-Kayıtlar varsayılan olarak `Belgeler\FreeRadio Recordings\` klasörüne kaydedilir; bu konum Ayarlar\'dan değiştirilebilir. Dosya adı istasyon adını ve kayıt başlangıç saatini içerir. Kayıt motoru akışa doğrudan bağlandığından, alınan ses herhangi bir işlem veya yeniden kodlama yapılmadan olduğu gibi diske yazılır; kayıt kalitesi yayının kendi kalitesiyle özdeştir.
+Kayıtlar varsayılan olarak `Belgeler\FreeRadio Recordings\` klasörüne kaydedilir. Dosya adı istasyon adını (veya şarkı kaydı modunda parça adını) ve kayıt başlangıç saatini içerir. Kayıt klasörü NVDA Menüsü → Tercihler → Ayarlar → FreeRadio → **Kayıt klasörü** seçeneğinden istediğiniz zaman değiştirilebilir. Kayıt motoru doğrudan akışa bağlandığından ses, alındığı hâliyle diske yazılır; herhangi bir işleme veya yeniden kodlama uygulanmaz; kayıt kalitesi yayın kalitesiyle özdeştir.
 
-**Anlık kayıt:** Bir istasyon çalarken `Ctrl+Win+E` tuşuna basın. Durdurmak için tekrar basın. Kayıt süresince oynatma kesintisiz devam eder.
+**Anlık kayıt:** Bir istasyon çalarken `Ctrl+Win+E` tuşuna bir kez basın. Durdurmak için tekrar basın. Oynatma süresince kesintisiz devam eder.
 
-**Planlı kayıt:** Tarayıcıda Kayıt sekmesini açın. Favorilerden bir istasyon seçin, başlangıç saatini SS:DD biçiminde ve süreyi dakika olarak girin, ardından kayıt modunu seçin:
+**Şarkı kaydı:** ICY metadata yayınlayan bir istasyon çalarken `Ctrl+Win+E` tuşuna **hızlıca iki kez** basın. Kayıt hemen başlar ve o anki parça adıyla adlandırılır. Parça değiştiğinde kayıt otomatik olarak durur ve NVDA kaydedilen dosya adını seslendirir. Parça bitmeden kaydı erken sonlandırmak istiyorsanız `Ctrl+Win+E` tuşuna tekrar iki kez basın. Çalan istasyon ICY metadata yayınlamıyorsa şarkı kaydı kullanılamaz ve NVDA bunu bildirir.
 
-- **Dinlerken kaydet** — istasyonu hem oynatır hem kaydeder. Ses çıkışı için BASS → VLC → PotPlayer → Windows Media Player sırasıyla bir arka uç başlatılır.
-- **Yalnızca kaydet** — herhangi bir ses çıkışı olmaksızın arka planda sessizce kaydeder; kayıt motoru akışa doğrudan bağlanır.
+**Zamanlanmış kayıt:** Tarayıcıda Kayıt sekmesini açın. Favorilerden bir istasyon seçin, başlangıç saatini SS:DD biçiminde ve süreyi dakika cinsinden girin, ardından bir kayıt modu seçin:
 
-Girilen saat geçmişse kayıt ertesi güne planlanır. NVDA, kayıt başladığında ve tamamlandığında bildirim verir.
+- **Dinleyerek kaydet** — eş zamanlı olarak çalar ve kaydeder. BASS → VLC → PotPlayer → Windows Media Player öncelik sırası kullanılarak bir oynatma arka ucu başlatılır.
+- **Yalnızca kaydet** — herhangi bir ses çıkışı olmaksızın arka planda sessizce kaydeder; kayıt motoru doğrudan akışa bağlanır.
+
+Girilen saat geçmişse kayıt ertesi güne planlanır. NVDA kayıt başladığında ve bittiğinde bildirim verir.
 
 ## Zamanlayıcı
 
@@ -188,12 +191,13 @@ NVDA Menüsü → Tercihler → Ayarlar → FreeRadio bölümünden aşağıdaki
 | Ctrl+Win+P hiç istasyon çalmıyorken: | Bu kısayola basıldığında aktif oynatma yoksa ne yapılacağını belirler: son çalınan istasyonu başlat veya favoriler listesini aç. |
 | Ctrl+Win+P iki kez basıldığında: | Kısayola art arda iki kez basıldığında gerçekleşecek işlemi seçer: hiçbir şey yapma, favoriler listesini aç, kayıt sekmesini aç veya zamanlayıcı sekmesini aç. "Hiçbir şey yapma" seçiliyken ilk basışta gecikme uygulanmaz ve yanıt anında gerçekleşir. |
 | Ctrl+Win+P üç kez basıldığında: | Kısayola art arda üç kez basıldığında gerçekleşecek işlemi seçer: hiçbir şey yapma, favoriler listesini aç, arama sekmesini aç, kayıt sekmesini aç veya zamanlayıcı sekmesini aç. |
-| Güncellemeleri otomatik denetle | Açıksa NVDA her başlatıldığında arka planda güncelleme kontrolü yapılır; yeni sürüm bulunursa bildirim verilir. Kapatıldığında otomatik kontrol devre dışı kalır, elle kontrol hâlâ kullanılabilir. |
-| Kayıt klasörü | Kayıt dosyalarının yazılacağı klasörü belirler. Gözat düğmesiyle klasör seçilebilir; boş bırakılırsa `Belgeler\FreeRadio Recordings` klasörü kullanılır. |
 | ffmpeg.exe yolu | Müzik tanıma için kullanılan ffmpeg.exe'nin konumu. Boş bırakılırsa eklenti klasöründeki ffmpeg.exe otomatik olarak kullanılır. |
 | VLC yolu | VLC kurulu değilse veya standart dışı bir konumdaysa yürütülebilir dosyanın tam yolu buraya girilebilir. |
 | wmplayer.exe yolu | Windows Media Player'ın yolu gerekiyorsa buraya girilebilir. |
 | PotPlayer yolu | PotPlayer standart dışı bir konumdaysa yolu buraya girilebilir. |
+| Kayıt klasörü | Kayıt dosyalarının yazılacağı klasörü belirler. Boş bırakılırsa varsayılan konum olan `Belgeler\FreeRadio Recordings\` kullanılır. Gözat düğmesiyle klasör seçilebilir. Değişiklikler kaydedildikten hemen sonra geçerli olur. |
+| Güncellemeleri otomatik denetle | Açıksa NVDA her başlatıldığında arka planda güncelleme kontrolü yapılır; yeni sürüm bulunursa bildirim verilir. Kapatıldığında otomatik kontrol devre dışı kalır, elle kontrol hâlâ kullanılabilir. |
+| İstasyon çalmadan önce internet bağlantısı kontrolünü devre dışı bırak | İstasyon çalmaya başlamadan önce gecikme yaşayan kullanıcılar için önerilir. DNS'in engellendiği durumlarda da faydalıdır. |
 
 ## Otomatik Parça Bildirimi
 

@@ -18,14 +18,15 @@ addon_info = AddonInfo(
 	addon_description=_("""FreeRadio is an internet radio add-on for NVDA that provides seamless access to thousands of stations via the Radio Browser open directory. It features a fully accessible station browser with search, country filter, favourites management, and per-station audio profiles. Playback is handled by a prioritised backend chain (BASS, VLC, PotPlayer, Windows Media Player) with support for volume control, audio effects, output device selection, and simultaneous audio mirroring to a second device. Additional features include instant and scheduled recording, sleep and alarm timers, automatic ICY metadata announcements, Shazam-based music recognition, and a liked-songs log. All controls and shortcuts are designed for NVDA accessibility."""),
 	
 	# version
-	addon_version="2026.19.0",
+	addon_version="2026.19.1",
 	
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version
 	addon_changelog=_("""
-- Small fixes in music recognition.
-- Added a checkbox in to the settings dialog for disabling internet connectivity check. Recommended for the users experiencing slowness before playing the stations.
-- Added the possibility to force music recognition. It can be triggered  with fourth press of "what's playing" shortcut (ctrl+win+I).
+- Added song recording feature that is available for the stations publishing track metadata.
+- It can be activated with two times press in quick succession of instant record shortcut.
+- The record process ends automatically when the track metadata changed and the file is saved with the name of ttrack.
+- Beside pressing instant record shortcut; pauseing, stopping or changing the station also stops the recording process manually.
 """),
 	
 	# Author(s)

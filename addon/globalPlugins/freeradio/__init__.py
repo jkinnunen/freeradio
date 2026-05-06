@@ -986,19 +986,111 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		gesture="kb:control+windows+e",
 	)
 	def script_toggleRecord(self, gesture):
-		if self._recorder.is_recording():
-			path = self._recorder.stop(self._player)
-			if path:
-				ui.message(_("Recording stopped: %s") % os.path.basename(path))
-			else:
-				ui.message(_("Recording stopped"))
+		# Always cancel any pending delayed action so that only the latest press counts.
+		old_timer = getattr(self, "_record_action_timer", None)
+		if old_timer:
+			old_timer.Stop()
+			self._record_action_timer = None
+
+		repeat = getLastScriptRepeatCount()
+
+		# ------------------------------------------------------------------ #
+		# Double press → song-capture mode (or stop it if already recording)  #
+		# ------------------------------------------------------------------ #
+		if repeat >= 1:
+			# A single-press action was queued but not yet executed — cancel it
+			# so the double press does not also trigger a normal instant recording.
+
+			if self._recorder.is_song_capture():
+				# Song-capture is active: user manually ends the recording early.
+				path = self._recorder.stop_song_capture()
+				if path:
+					ui.message(_("Song recording stopped: %s") % os.path.basename(path))
+				else:
+					ui.message(_("Song recording stopped"))
+				return
+
+			if not self._player.has_media():
+				ui.message(_("No station is playing"))
+				return
+
+			# Check whether the current station publishes ICY metadata.
+			def _start_song_capture():
+				from . import radioPlayer as _rp
+
+				# Try the fast in-memory title first; fall back to a live HTTP probe.
+				icy = self._player.get_icy_title()
+				if not icy:
+					url = (
+						getattr(self._player, "_current_url_resolved", None)
+						or getattr(self._player, "_current_url", None)
+					)
+					if url:
+						icy = _rp._read_icy_title(url)
+
+				if not icy:
+					# Station does not broadcast ICY metadata — inform the user and abort.
+					wx.CallAfter(
+						ui.message,
+						_("This station does not broadcast track metadata. Song recording is not available."),
+					)
+					return
+
+				# Stop any plain instant recording that may already be running.
+				if self._recorder.is_recording() and not self._recorder.is_song_capture():
+					self._recorder.stop(self._player)
+
+				try:
+					self._recorder.start_song_capture(self._player, icy)
+					wx.CallAfter(
+						ui.message,
+						_("Song recording started: %s") % icy,
+					)
+				except Exception as exc:
+					log.error("FreeRadio: song capture failed to start: %s", exc)
+					wx.CallAfter(ui.message, _("Could not start song recording"))
+
+			threading.Thread(target=_start_song_capture, daemon=True).start()
 			return
-		if not self._player.has_media():
-			ui.message(_("No station is playing"))
-			return
-		name = self._player.get_current_name()
-		self._recorder.start(self._player, name)
-		ui.message(_("Recording started: %s") % name)
+
+		# ------------------------------------------------------------------ #
+		# Single press → instant recording (stop if active; start if not)     #
+		# The action is delayed slightly so a quick double press can cancel it #
+		# before it fires.                                                     #
+		# ------------------------------------------------------------------ #
+		def _do_single_press():
+			self._record_action_timer = None
+
+			# If a song-capture is active, a single press does nothing here —
+			# the user must double-press to stop song-capture mode.
+			if self._recorder.is_song_capture():
+				return
+
+			if self._recorder.is_recording():
+				path = self._recorder.stop(self._player)
+				if path:
+					wx.CallAfter(
+						ui.message,
+						_("Recording stopped: %s") % os.path.basename(path),
+					)
+				else:
+					wx.CallAfter(ui.message, _("Recording stopped"))
+				return
+
+			if not self._player.has_media():
+				wx.CallAfter(ui.message, _("No station is playing"))
+				return
+
+			name = self._player.get_current_name()
+			try:
+				self._recorder.start(self._player, name)
+				wx.CallAfter(ui.message, _("Recording started: %s") % name)
+			except Exception as exc:
+				log.error("FreeRadio: instant recording failed to start: %s", exc)
+				wx.CallAfter(ui.message, _("Could not start recording"))
+
+		# Delay single-press action by 350 ms so a second press can cancel it.
+		self._record_action_timer = wx.CallLater(350, _do_single_press)
 
 	@script(
 		description=_("Open FreeRadio recordings folder"),
@@ -1519,17 +1611,31 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				log.error("FreeRadio: could not save liked song: %s", e)
 
 	def _icy_poll_loop(self):
-		"""Background thread: polls ICY metadata every ~5 s and announces changes."""
+		"""Background thread: polls ICY metadata every ~5 s and announces changes.
+
+		When a song-capture recording is active the loop also watches for track
+		changes.  As soon as the ICY title differs from the one that was current
+		when recording started, the recording is stopped automatically and the
+		user is notified via NVDA speech.
+		"""
 		import time as _time
 		_INTERVAL = 5.0
 		while not self._icy_poll_stop.wait(timeout=_INTERVAL):
 			try:
-				if not config.conf["freeradio"].get("announce_track_changes", False):
-					continue
 				if not self._player.is_playing():
-					# Player stopped/paused — clear memory so stale title is never re-announced
+					# Player stopped/paused — clear memory so stale title is never re-announced.
 					self._icy_last_title = None
+					# If a song-capture was running while the station stopped, end it cleanly.
+					if self._recorder.is_song_capture():
+						path = self._recorder.stop_song_capture()
+						if path:
+							wx.CallAfter(
+								ui.message,
+								_("Song recording saved: %s") % os.path.basename(path),
+							)
 					continue
+
+				# Fetch the current ICY title (in-memory cache first, live probe as fallback).
 				icy = self._player.get_icy_title()
 				if not icy:
 					from . import radioPlayer as _rp
@@ -1540,11 +1646,38 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					if url:
 						icy = _rp._read_icy_title(url)
 
+				# ---------------------------------------------------------- #
+				# Song-capture auto-stop: end recording when the track changes #
+				# ---------------------------------------------------------- #
+				if self._recorder.is_song_capture():
+					recorded_title = self._recorder.get_song_title()
+					if icy and recorded_title and icy != recorded_title:
+						# The track has changed — stop the recording automatically.
+						path = self._recorder.stop_song_capture()
+						if path:
+							wx.CallAfter(
+								ui.message,
+								_("Song recording saved: %s") % os.path.basename(path),
+							)
+						else:
+							wx.CallAfter(ui.message, _("Song recording stopped"))
+
 				if not icy:
 					# This station publishes no ICY metadata.
 					# Wipe last title so we never repeat the previous station's track
 					# if/when we return to a metadata-capable station later.
 					self._icy_last_title = ""
+					continue
+
+				# ---------------------------------------------------------- #
+				# Track-change announcements (controlled by user setting)      #
+				# ---------------------------------------------------------- #
+				if not config.conf["freeradio"].get("announce_track_changes", False):
+					# Still keep _icy_last_title current for song-capture comparisons.
+					if self._icy_last_title is None:
+						self._icy_last_title = icy
+					elif icy != self._icy_last_title:
+						self._icy_last_title = icy
 					continue
 
 				if self._icy_last_title is None:

@@ -707,6 +707,61 @@ class Recorder:
 		log.info("FreeRadio Recorder: instant recording started → %s", out)
 		return out
 
+	def start_song_capture(self, player, song_title):
+		"""Start a song-capture recording named after the current ICY track title.
+
+		This mode is intended for stations that broadcast ICY metadata.  The file
+		is named after the song rather than the station so recordings are easy to
+		identify later.  The caller is responsible for stopping the recording when
+		the track changes (see Recorder.stop_song_capture).
+
+		Returns the output file path.
+		"""
+		original_url = getattr(player, "_current_url_resolved", None) or player._current_url
+		if not original_url:
+			raise RuntimeError("No station playing")
+
+		# Stop any ongoing instant or song-capture recording before starting a new one.
+		if self._writer:
+			self._writer.stop()
+
+		out = _make_output_path(song_title)
+		self._output_path  = out
+		self._station_name = song_title   # store the song title in the station-name slot
+		self._song_capture = True         # flag: this recording was started in song-capture mode
+		self._writer = _StreamWriter(original_url, out)
+		self._writer.start()
+		log.info("FreeRadio Recorder: song-capture recording started → %s", out)
+		return out
+
+	def stop_song_capture(self):
+		"""Stop an active song-capture recording.
+
+		Clears the song-capture flag regardless of whether a writer was active so
+		the recorder always returns to normal state after this call.
+		Returns the saved file path, or None if no recording was active.
+		"""
+		path = self._output_path
+		if self._writer:
+			self._writer.stop()
+			path = self._writer.output_path
+			self._writer = None
+		self._output_path  = None
+		self._station_name = ""
+		self._song_capture = False
+		log.info("FreeRadio Recorder: song-capture recording stopped, file=%s", path)
+		return path
+
+	def is_song_capture(self):
+		"""Return True when the current recording was started in song-capture mode."""
+		return bool(getattr(self, "_song_capture", False)) and self._writer is not None
+
+	def get_song_title(self):
+		"""Return the song title used for the active song-capture recording, or empty string."""
+		if self.is_song_capture():
+			return self._station_name
+		return ""
+
 	def stop(self, player=None):
 		"""Stop instant recording. Returns saved file path."""
 		path = self._output_path
@@ -716,6 +771,8 @@ class Recorder:
 			self._writer = None
 		self._output_path  = None
 		self._station_name = ""
+		# Also clear song-capture flag if stop() is called generically.
+		self._song_capture = False
 		log.info("FreeRadio Recorder: instant recording stopped, file=%s", path)
 		return path
 

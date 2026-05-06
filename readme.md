@@ -30,9 +30,9 @@ All shortcuts can be reassigned from NVDA Menu → Preferences → Input Gesture
 | `Ctrl+Win+↑` | Volume up | Increases volume by 10; maximum 100. |
 | `Ctrl+Win+↓` | Volume down | Decreases volume by 10; minimum 0. |
 | `Ctrl+Win+V` | Add to favourites | Adds the currently playing station to the favourites list. Announces if the station is already in the list. |
-| `Ctrl+Win+I` | Station info | Announces the currently playing station name. Press twice to show details such as country, genre and bitrate in a dialog. Press three times to copy the current track info (ICY metadata) to the clipboard if available; if no metadata is present, starts Shazam music recognition instead. Press four times to force music recognition in case of wrong ISI metadata. |
+| `Ctrl+Win+I` | Station info | Announces the currently playing station name. Press twice to show details such as country, genre and bitrate in a dialog. Press three times to copy the current track info (ICY metadata) to the clipboard if available; if no metadata is present, starts Shazam music recognition instead. Press four times to force music recognition in case of wrong ICY metadata. |
 | `Ctrl+Win+M` | Audio mirror | Mirrors the current stream to an additional audio output device simultaneously. Press again to stop mirroring. |
-| `Ctrl+Win+E` | Instant recording | Starts recording the current station. Press again to stop; playback continues uninterrupted. |
+| `Ctrl+Win+E` | Instant recording | Press once to start recording the current station; press again to stop. Press **twice** to start a **song recording** — the file is named after the current track and the recording stops automatically when the track changes. Press twice again while a song recording is active to stop it early. Playback continues uninterrupted in all recording modes. Only available for stations that broadcast ICY metadata. |
 | `Ctrl+Win+W` | Open recordings folder | Opens the folder containing recorded files in File Explorer. |
 
 Next / previous shortcuts only navigate the favourites list; they do not work with the all stations list. When a list is focused in the browser window, the left and right arrow keys serve the same purpose — see In-Dialog Shortcuts.
@@ -79,7 +79,7 @@ The following keys work only while the Station Browser window is active.
 | `Enter` | Play | When the All Stations or Favourites list is focused, starts playing the selected station immediately. Switches to the selected station even if another station is already playing. |
 | `Space` | Play / Pause | Pauses if a station is playing; otherwise starts playing the selected station. |
 | `Ctrl+Tab` | Next tab | Switches to the next tab (All Stations → Favourites → Recording → Timer → Liked Songs). |
-| `Ctrl+Shift+Tab` | Previous tab | Returns to the previous tab. |
+| `Ctrl+Shift+Tab` | Previous tab | Switches to the previous tab. |
 | `Escape` | Hide | Hides the window; the add-on continues playing in the background. |
 
 ### Volume Shortcuts
@@ -153,9 +153,11 @@ On first press, a selection dialog listing the available output devices appears.
 
 ## Recording
 
-Recordings are saved to `Documents\FreeRadio Recordings\` by default. The filename includes the station name and recording start time. The recordings folder can be changed at any time from NVDA Menu → Preferences → Settings → FreeRadio → **Recordings folder**. Because the recording engine connects directly to the stream, the audio is written to disk as received — no processing or re-encoding is applied; recording quality is identical to the broadcast quality.
+Recordings are saved to `Documents\FreeRadio Recordings\` by default. The filename includes the station name (or song title, in song recording mode) and the recording start time. The recordings folder can be changed at any time from NVDA Menu → Preferences → Settings → FreeRadio → **Recordings folder**. Because the recording engine connects directly to the stream, the audio is written to disk as received — no processing or re-encoding is applied; recording quality is identical to the broadcast quality.
 
-**Instant recording:** While a station is playing, press `Ctrl+Win+E`. Press again to stop. Playback continues uninterrupted throughout.
+**Instant recording:** While a station is playing, press `Ctrl+Win+E` once. Press again to stop. Playback continues uninterrupted throughout.
+
+**Song recording:** Press `Ctrl+Win+E` **twice** in quick succession while a station that broadcasts ICY metadata is playing. The recording starts immediately and is named after the current track title. When the track changes, the recording stops automatically and NVDA announces the saved filename. If you want to end the recording early before the track finishes, press `Ctrl+Win+E` twice again. If the current station does not broadcast ICY metadata, song recording is not available and NVDA will inform you.
 
 **Scheduled recording:** Open the Recording tab in the browser. Select a station from your favourites, enter the start time in HH:MM format and the duration in minutes, then choose a recording mode:
 
@@ -189,11 +191,13 @@ The following options can be configured from NVDA Menu → Preferences → Setti
 | When Ctrl+Win+P is pressed with no active playback | Determines what happens when this shortcut is pressed and nothing is playing: start the last station or open the favourites list. |
 | When Ctrl+Win+P is pressed twice | Selects what happens when the shortcut is pressed twice in quick succession: do nothing, open the favourites list, open the recording tab or open the timer tab. When "do nothing" is selected, the first press responds instantly with no delay. |
 | When Ctrl+Win+P is pressed three times | Selects what happens when the shortcut is pressed three times in quick succession: do nothing, open the favourites list, open the search tab, open the recording tab or open the timer tab. |
+| Check for updates automatically | When enabled, a background update check runs each time NVDA starts; you are notified if a new version is found. When disabled, automatic checks stop but manual checks remain available. |
 | ffmpeg.exe path | Path to the ffmpeg.exe used for music recognition. If left blank, an ffmpeg.exe in the add-on folder is used automatically. |
 | VLC path | If VLC is not installed or is in a non-standard location, the full path to the executable can be entered here. |
 | wmplayer.exe path | Enter the path to Windows Media Player here if needed. |
 | PotPlayer path | If PotPlayer is in a non-standard location, its path can be entered here. |
 | Recordings folder | Sets the folder where recorded files are saved. If left blank, the default location `Documents\FreeRadio Recordings\` is used. A Browse button lets you select the folder interactively. Changes take effect immediately after saving. |
+| Disable internet connectivity check before playing | Recommended for users who experience a delay before a station starts playing. Also useful when DNS is blocked. |
 
 ## Auto-announce Track Changes
 
@@ -230,6 +234,21 @@ The add-on selects a playback backend using the following priority order:
 2. **VLC** — takes over if BASS fails. Searched automatically in common installation locations, user profile folders and the system PATH.
 3. **PotPlayer** — tried if VLC is not found. Searched automatically in common installation locations.
 4. **Windows Media Player** — used as a last resort; requires the WMP component to be installed on the system.
+
+## Update Check
+
+FreeRadio automatically checks for new versions via GitHub.
+
+**Automatic check:** Runs silently in the background 15 seconds after NVDA starts. If a new version is found, you are notified; if none is found, no message is shown.
+
+**Manual check:** Can be triggered on demand from NVDA Tools → FreeRadio → **Check for Updates…**. When started this way, the result is announced even if the version is up to date.
+
+**When an update is found:** A dialog opens showing the version number and your installed version.
+
+- If a directly downloadable `.nvda-addon` file is available on the GitHub release, a **Download and Install** button is shown. Once confirmed, the file is downloaded in the background, NVDA announces when the download starts, and NVDA's own installation screen opens automatically.
+- If no direct download link is available, an **Open Page** button is shown and the GitHub release page opens in the default browser.
+
+**To disable automatic checks:** Turn off the **Check for updates automatically** option from NVDA Menu → Preferences → Settings → FreeRadio.
 
 ## License
 
