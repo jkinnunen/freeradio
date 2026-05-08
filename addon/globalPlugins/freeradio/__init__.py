@@ -56,6 +56,7 @@ def _init_config():
 		"recordings_dir":         "string(default='')",
 		"auto_check_updates":     "boolean(default=True)",
 		"disable_internet_check": "boolean(default=False)",
+		"crossfade":              "string(default='off')",
 	}
 
 _init_config()
@@ -80,6 +81,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			_saved_fx = config.conf["freeradio"].get("audio_fx", "none")
 			if _saved_fx and _saved_fx != "none":
 				self._player.set_fx(_saved_fx)
+			# Apply saved crossfade setting
+			_cf_map = {"off": 0.0, "short": 1.0, "normal": 2.0}
+			_saved_cf = config.conf["freeradio"].get("crossfade", "off")
+			self._player.set_crossfade_duration(_cf_map.get(_saved_cf, 0.0))
 		# Notify and reset settings when audio device is lost
 		self._player.on_device_lost = self._on_audio_device_lost
 		self._manager = stationManager.StationManager()
@@ -660,7 +665,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					if url:
 						icy = _rp._read_icy_title(url)
 
-				# 4× basıldıysa token değişmiştir — işlemi iptal et
+				# If 4× pressed, token has changed — cancel transaction
 				if getattr(self, "_whats_playing_token", None) != tok:
 					return
 
@@ -1836,6 +1841,25 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		self._fx_choice.Bind(wx.EVT_CHECKLISTBOX, self._on_fx_check)
 		self._fx_choice.Bind(wx.EVT_LISTBOX,      self._on_fx_hover)
 
+		# --- Station switch crossfade (BASS only) ---
+		_cf_label = _("Station &switch transition (BASS backend only):")
+		_cf_choices = [
+			_("Instant cut (no crossfade)"),
+			_("Short crossfade (1 second)"),
+			_("Normal crossfade (2 seconds)"),
+		]
+		self._cf_keys = ["off", "short", "normal"]
+		self._crossfade_choice = sHelper.addLabeledControl(
+			_cf_label,
+			wx.Choice,
+			choices=_cf_choices,
+		)
+		self._crossfade_choice.SetName(_cf_label)
+		_saved_cf = config.conf["freeradio"].get("crossfade", "off")
+		self._crossfade_choice.SetSelection(
+			self._cf_keys.index(_saved_cf) if _saved_cf in self._cf_keys else 0
+		)
+
 		self._resume = wx.CheckBox(self, label=_("&Resume last station on NVDA startup"))
 		self._resume.SetValue(config.conf["freeradio"].get("resume_on_start", False))
 		sHelper.addItem(self._resume)
@@ -2257,6 +2281,11 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		config.conf["freeradio"]["auto_check_updates"] = self._auto_check_updates.GetValue()
 		config.conf["freeradio"]["disable_internet_check"] = self._disable_internet_check.GetValue()
 
+		# Crossfade
+		_cf_sel = self._crossfade_choice.GetSelection()
+		_cf_val = self._cf_keys[_cf_sel] if 0 <= _cf_sel < len(self._cf_keys) else "off"
+		config.conf["freeradio"]["crossfade"] = _cf_val
+
 		for plugin in globalPluginHandler.runningPlugins:
 			if isinstance(plugin, GlobalPlugin):
 				plugin._player.set_volume(vol)
@@ -2294,6 +2323,14 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 					# Apply FX immediately
 					try:
 						plugin._player.set_fx(config.conf["freeradio"].get("audio_fx", "none"))
+					except Exception:
+						pass
+					# Apply crossfade immediately
+					_cf_map = {"off": 0.0, "short": 1.0, "normal": 2.0}
+					try:
+						plugin._player.set_crossfade_duration(
+							_cf_map.get(config.conf["freeradio"].get("crossfade", "off"), 0.0)
+						)
 					except Exception:
 						pass
 				

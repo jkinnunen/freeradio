@@ -675,6 +675,10 @@ class RadioPlayer:
         self._output_device_index = output_device  # User-selected device index
         self.on_device_lost = None  # Callback: called when the device is lost (device_index)
 
+        # Crossfade
+        self._crossfade_duration = 0.0   # seconds; 0.0 = disabled
+        self._crossfade_engine   = None  # old _BassEngine being faded out
+
         self._watchdog_stop = threading.Event()
         self._watchdog_thread = threading.Thread(target=self._watchdog_loop, daemon=True)
         self._watchdog_thread.start()
@@ -1066,6 +1070,29 @@ class RadioPlayer:
         self._backend = self.BACKEND_WMP
 
 
+    def set_crossfade_duration(self, seconds):
+        """Set the crossfade duration in seconds when switching stations.
+
+        seconds: 0.0 disables crossfade (instant cut); recommended range 1.0–4.0.
+        Only effective with the BASS backend.
+        """
+        self._crossfade_duration = max(0.0, float(seconds))
+
+    def get_crossfade_duration(self):
+        return self._crossfade_duration
+
+    def _abort_crossfade(self):
+        """Immediately stop any in-progress fade-out engine.  Must be called
+        from a context where it is safe to unload a _BassEngine."""
+        engine = self._crossfade_engine
+        self._crossfade_engine = None
+        if engine:
+            try:
+                engine.stop()
+                engine.unload()
+            except Exception:
+                pass
+
     def play(self, url, name="", url_resolved=None, station=None):
         with self._play_lock:
             # Bump generation — any in-flight _bg_launch with an older gen will
@@ -1073,8 +1100,40 @@ class RadioPlayer:
             self._play_gen += 1
             my_gen = self._play_gen
 
-            # Stop whatever is currently playing / being launched.
-            self._stop_current()
+            # --- Crossfade logic (BASS backend only) ---
+            # If a stream is currently playing on BASS and crossfade is enabled,
+            # keep the old engine alive as a temporary fade-out engine and spin up
+            # a brand-new _BassEngine for the new station.  The old engine will
+            # continue playing until the new stream is confirmed started, then it
+            # is gradually faded to silence in a background thread.
+            xfade_engine = None
+            do_crossfade = (
+                not self._disable_bass
+                and self._crossfade_duration > 0.0
+                and self._backend == self.BACKEND_BASS
+                and self._bass_engine is not None
+                and self._bass_engine.ready()
+                and self._is_playing
+            )
+
+            if do_crossfade:
+                # Abort any previous (still running) fade-out first.
+                self._abort_crossfade()
+
+                # Save old engine — it keeps playing untouched.
+                xfade_engine = self._bass_engine
+
+                # Create a fresh engine for the new station.
+                # load() is called in the background thread (blocking I/O outside lock).
+                dll_dir = os.path.dirname(os.path.abspath(__file__))
+                self._bass_engine = _BassEngine(dll_dir, output_device=self._output_device_index)
+                # backend is NONE until _launch_bass() succeeds below.
+                self._backend = self.BACKEND_NONE
+            else:
+                # Normal path: stop whatever is currently playing.
+                self._abort_crossfade()
+                self._stop_current()
+
             self._stop_icy_thread()
 
             self._current_url          = url
@@ -1087,21 +1146,105 @@ class RadioPlayer:
             vol        = self._volume
             stream_url = url_resolved or url
 
-        def _bg_launch(gen=my_gen):
+        def _bg_launch(gen=my_gen, xfade=xfade_engine):
             # Each blocking step is guarded: if a newer play() arrived while we
             # were busy, our generation is stale — bail out immediately.
             if self._play_gen != gen:
+                if xfade:
+                    try:
+                        xfade.stop()
+                        xfade.unload()
+                    except Exception:
+                        pass
                 return
+
+            # If crossfade mode: load the brand-new engine now (blocking).
+            if xfade is not None:
+                loaded = self._bass_engine.load()
+                if not loaded or not self._bass_engine.ready():
+                    # New engine failed to initialise — restore old engine and
+                    # fall back to a regular (non-crossfade) launch.
+                    log.warning("FreeRadio: crossfade engine failed to load, falling back.")
+                    try:
+                        self._bass_engine.unload()
+                    except Exception:
+                        pass
+                    self._bass_engine = xfade
+                    xfade = None
+                    try:
+                        self._bass_engine.stop()
+                    except Exception:
+                        pass
+                else:
+                    self._bass_engine.on_meta       = self._on_bass_meta
+                    self._bass_engine.on_connecting  = self._on_bass_connecting
+                    self._bass_engine.on_stall       = self._on_bass_stall
+
+                if self._play_gen != gen:
+                    if xfade:
+                        try:
+                            xfade.stop()
+                            xfade.unload()
+                        except Exception:
+                            pass
+                    return
+
             try:
                 self._launch(stream_url, vol, gen=gen)
             except Exception:
                 if self._play_gen == gen:
                     self._is_playing = False
+                if xfade:
+                    try:
+                        xfade.stop()
+                        xfade.unload()
+                    except Exception:
+                        pass
                 return
+
             if self._play_gen != gen:
                 # A newer play() started while _launch was running; it has
                 # already called _stop_current(), so just exit.
+                if xfade:
+                    try:
+                        xfade.stop()
+                        xfade.unload()
+                    except Exception:
+                        pass
                 return
+
+            # New stream is confirmed playing — begin fade-out of the old engine.
+            if xfade:
+                self._crossfade_engine = xfade
+                xfade_vol = vol / 100.0
+
+                def _fade_out(engine=xfade, start_vol=xfade_vol):
+                    duration = self._crossfade_duration
+                    steps    = max(10, int(duration * 20))  # ~50 ms per step
+                    interval = duration / steps
+                    for i in range(steps):
+                        # Stop early if a newer crossfade has already taken over.
+                        if self._crossfade_engine is not engine:
+                            break
+                        frac = 1.0 - (i + 1) / steps
+                        try:
+                            engine.set_volume(frac * start_vol)
+                        except Exception:
+                            break
+                        time.sleep(interval)
+                    # Clean up — only if still ours.
+                    if self._crossfade_engine is engine:
+                        self._crossfade_engine = None
+                    try:
+                        engine.stop()
+                        engine.unload()
+                    except Exception:
+                        pass
+
+                threading.Thread(
+                    target=_fade_out, daemon=True, name="FreeRadio-fadeout"
+                ).start()
+
             if self._backend != self.BACKEND_BASS:
                 self._start_icy_thread(stream_url)
             # Mirror aktifse aynı URL'yi yeni istasyonla güncelle
@@ -1200,6 +1343,7 @@ class RadioPlayer:
             self._play_gen += 1
             self._intentional_stop = True
             self._stop_icy_thread()
+            self._abort_crossfade()
 
             if not self._disable_bass and self._backend == self.BACKEND_BASS and self._bass_engine:
                 self._bass_engine.stop()
@@ -1483,6 +1627,7 @@ class RadioPlayer:
     def terminate(self):
         self._watchdog_stop.set()
         self.stop_mirror()
+        self._abort_crossfade()
         self.stop()
         if not self._disable_bass and self._bass_engine:
             self._bass_engine.unload()

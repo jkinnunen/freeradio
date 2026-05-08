@@ -18,15 +18,21 @@ addon_info = AddonInfo(
 	addon_description=_("""FreeRadio is an internet radio add-on for NVDA that provides seamless access to thousands of stations via the Radio Browser open directory. It features a fully accessible station browser with search, country filter, favourites management, and per-station audio profiles. Playback is handled by a prioritised backend chain (BASS, VLC, PotPlayer, Windows Media Player) with support for volume control, audio effects, output device selection, and simultaneous audio mirroring to a second device. Additional features include instant and scheduled recording, sleep and alarm timers, automatic ICY metadata announcements, Shazam-based music recognition, and a liked-songs log. All controls and shortcuts are designed for NVDA accessibility."""),
 	
 	# version
-	addon_version="2026.19.1",
+	addon_version="2026.19.2",
 	
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version
 	addon_changelog=_("""
-- Added song recording feature that is available for the stations publishing track metadata.
-- It can be activated with two times press in quick succession of instant record shortcut.
-- The record process ends automatically when the track metadata changed and the file is saved with the name of ttrack.
-- Beside pressing instant record shortcut; pauseing, stopping or changing the station also stops the recording process manually.
+**New feature: Station switch crossfade (BASS backend)**
+
+Added a smooth crossfade transition when switching between stations. The new station begins playing immediately with no gap, and the previous station fades out gradually in the background once the new stream is confirmed active.
+
+The transition mode can be configured in FreeRadio Settings under "Station switch transition":
+- **Instant cut** (default) — previous behavior, no crossfade
+- **Short crossfade** — 1-second fade-out
+- **Normal crossfade** — 2-second fade-out
+
+This feature requires the BASS backend and has no performance impact when set to "Instant cut".
 """),
 	
 	# Author(s)
