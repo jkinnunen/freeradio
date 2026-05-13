@@ -18,21 +18,14 @@ addon_info = AddonInfo(
 	addon_description=_("""FreeRadio is an internet radio add-on for NVDA that provides seamless access to thousands of stations via the Radio Browser open directory. It features a fully accessible station browser with search, country filter, favourites management, and per-station audio profiles. Playback is handled by a prioritised backend chain (BASS, VLC, PotPlayer, Windows Media Player) with support for volume control, audio effects, output device selection, and simultaneous audio mirroring to a second device. Additional features include instant and scheduled recording, sleep and alarm timers, automatic ICY metadata announcements, Shazam-based music recognition, and a liked-songs log. All controls and shortcuts are designed for NVDA accessibility."""),
 	
 	# version
-	addon_version="2026.19.2",
+	addon_version="2026.19.3",
 	
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version
 	addon_changelog=_("""
-**New feature: Station switch crossfade (BASS backend)**
-
-Added a smooth crossfade transition when switching between stations. The new station begins playing immediately with no gap, and the previous station fades out gradually in the background once the new stream is confirmed active.
-
-The transition mode can be configured in FreeRadio Settings under "Station switch transition":
-- **Instant cut** (default) — previous behavior, no crossfade
-- **Short crossfade** — 1-second fade-out
-- **Normal crossfade** — 2-second fade-out
-
-This feature requires the BASS backend and has no performance impact when set to "Instant cut".
+- Fixed: The "Announce currently playing station" script (Ctrl+Win+I) was silent when NVDA's speech mode was set to "on demand". Speech is now forced by temporarily switching to talk mode before announcing and restoring on-demand mode immediately after.
+- Added: A real-time filter field to the Favourites tab. Typing in the field instantly narrows the list; the previous selection is preserved by station UUID so focus does not jump while editing. Down arrow moves focus from the filter field into the list. All actions (play, delete, reorder with X, F3/F4 navigation, audio profiles) resolve the visible index back to the full favourites list, so plugin-side next/prev navigation and save operations remain correct when a filter is active.
+- Added: A "Rename Station" button to the Favourites tab (also accessible via F9) that lets users change the display name of any favourite. The new name is saved immediately and reflected across the favourites list, the recording scheduler, and the timer station dropdowns. The selection is preserved after renaming.
 """),
 	
 	# Author(s)

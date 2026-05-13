@@ -16,6 +16,34 @@ import speech
 
 log = logging.getLogger(__name__)
 
+
+def _speak_on_demand(msg):
+	"""Announce a message regardless of NVDA's current speech mode.
+
+	When a script uses speakOnDemand=True, NVDA allows speech only while the
+	script is executing on the main thread.  Any speech triggered later — e.g.
+	from a background thread via wx.CallAfter — arrives after NVDA has already
+	left that "on demand" window, so the output is silently suppressed.
+
+	The reliable workaround (also used by Resource Monitor and similar add-ons)
+	is to briefly force speech mode to SpeechMode.talk before speaking, then
+	restore whatever mode was active.  This must be called from the main thread
+	(use wx.CallAfter when coming from a background thread).
+
+	Args:
+		msg: The string to announce.
+	"""
+	# SpeechMode was introduced in NVDA 2021.1.  Guard for older builds just in
+	# case, although any NVDA that supports speakOnDemand already has it.
+	try:
+		previous_mode = speech.getState().speechMode
+		speech.setSpeechMode(speech.SpeechMode.talk)
+		speech.speakMessage(msg)
+		speech.setSpeechMode(previous_mode)
+	except Exception:
+		# Fallback: plain ui.message (works on older NVDA without on-demand mode).
+		ui.message(msg)
+
 import addonHandler
 addonHandler.initTranslation()
 
@@ -562,19 +590,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		description=_("Announce currently playing station. Press twice for full details, three times to copy track info, four times to force music recognition."),
 		category=_("FreeRadio"),
 		gesture="kb:control+windows+i",
+		speakOnDemand=True,
 	)
 	def script_whatsPlaying(self, gesture):
 		active_sched = self._recorder.get_active_scheduled()
 
 		if not self._player.has_media():
-			# Radio inactive but a scheduled recording may still be running
+			# Radio inactive but a scheduled recording may still be running.
+			# These run from the main thread so _speak_on_demand can be called directly.
 			if active_sched:
 				parts = [_("Radio inactive. Active scheduled recordings:")]
 				for sched_rec in active_sched:
 					parts.append(sched_rec.station.get("name", "").strip())
-				ui.message("  ".join(parts))
+				_speak_on_demand("  ".join(parts))
 			else:
-				ui.message(_("FreeRadio is not active"))
+				_speak_on_demand(_("FreeRadio is not active"))
 			return
 		name = self._player.get_current_name()
 		repeat = getLastScriptRepeatCount()
@@ -615,7 +645,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					for sched_rec in active_sched:
 						sched_name = sched_rec.station.get("name", "").strip()
 						msg += ". " + _("Scheduled recording: %s") % sched_name
-					wx.CallAfter(ui.message, msg)
+					# Use _speak_on_demand so the message is announced even when
+					# NVDA's speech mode is set to 'on demand'.
+					wx.CallAfter(_speak_on_demand, msg)
 				threading.Thread(target=_announce, daemon=True).start()
 			else:
 				msg = _("Paused: %s") % name
@@ -628,7 +660,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				for sched_rec in active_sched:
 					sched_name = sched_rec.station.get("name", "").strip()
 					msg += ". " + _("Scheduled recording: %s") % sched_name
-				ui.message(msg)
+				# Paused state is reported from the main thread, so call
+				# _speak_on_demand directly (no wx.CallAfter needed here).
+				_speak_on_demand(msg)
 
 		elif repeat == 1:
 			# Second press: cancel single-press thread.
@@ -679,10 +713,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 						or getattr(self._player, "_current_url", None)
 					)
 					if not stream_url:
-						wx.CallAfter(ui.message, _("No track info available"))
+						wx.CallAfter(_speak_on_demand, _("No track info available"))
 						return
 					wx.CallAfter(
-						ui.message,
+						_speak_on_demand,
 						_("No track metadata found. Starting music recognition…"),
 					)
 					self._start_music_recognition(stream_url)
@@ -701,9 +735,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				or getattr(self._player, "_current_url", None)
 			)
 			if not stream_url:
-				ui.message(_("No track info available"))
+				# Called from the main thread (no wx.CallAfter needed).
+				_speak_on_demand(_("No track info available"))
 			else:
-				ui.message(_("Starting music recognition…"))
+				_speak_on_demand(_("Starting music recognition…"))
 				self._start_music_recognition(stream_url)
 
 	@script(

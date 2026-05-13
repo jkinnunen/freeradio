@@ -250,6 +250,16 @@ class RadioDialog(wx.Dialog):
 
 	def _build_fav_tab(self):
 		sizer = wx.BoxSizer(wx.VERTICAL)
+
+		# Filter row: label + text field that narrows the favourites list in real time.
+		sizer.Add(
+			wx.StaticText(self._fav_panel, label=_("Filter:")),
+			0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 8,
+		)
+		self._fav_filter = wx.TextCtrl(self._fav_panel)
+		self._fav_filter.SetName(_("Filter favourites"))
+		sizer.Add(self._fav_filter, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
+
 		self._fav_list = wx.ListBox(self._fav_panel, style=wx.LB_SINGLE)
 		self._fav_list.SetName(_("Favourites"))
 		sizer.Add(self._fav_list, 1, wx.EXPAND | wx.ALL, 5)
@@ -261,7 +271,11 @@ class RadioDialog(wx.Dialog):
 
 		self._clear_audio_btn = wx.Button(self._fav_panel, label=_("Clear Audio Prof&ile"))
 		self._clear_audio_btn.Enable(False)
-		btn_row.Add(self._clear_audio_btn, 0)
+		btn_row.Add(self._clear_audio_btn, 0, wx.RIGHT, 6)
+
+		self._rename_btn = wx.Button(self._fav_panel, label=_("Re&name Station"))
+		self._rename_btn.Enable(False)
+		btn_row.Add(self._rename_btn, 0)
 
 		sizer.Add(btn_row, 0, wx.LEFT | wx.BOTTOM, 5)
 
@@ -274,6 +288,11 @@ class RadioDialog(wx.Dialog):
 		self._fav_list.Bind(wx.EVT_SET_FOCUS, self._on_fav_list_focus)
 		self._save_audio_btn.Bind(wx.EVT_BUTTON,   self._on_save_audio_profile)
 		self._clear_audio_btn.Bind(wx.EVT_BUTTON,  self._on_clear_audio_profile)
+		self._rename_btn.Bind(wx.EVT_BUTTON,       self._on_rename_station)
+		# Filter text field: rebuild the list on every keystroke.
+		self._fav_filter.Bind(wx.EVT_TEXT,     self._on_fav_filter_changed)
+		# Allow Down arrow to move focus from the filter field into the list.
+		self._fav_filter.Bind(wx.EVT_KEY_DOWN, self._on_fav_filter_key)
 
 	def _build_all_tab(self):
 		sizer = wx.BoxSizer(wx.VERTICAL)
@@ -622,6 +641,45 @@ class RadioDialog(wx.Dialog):
 		self._tab_just_switched = False
 		event.Skip()
 
+	def _on_fav_filter_changed(self, event):
+		"""Rebuild the favourites list whenever the filter field changes.
+
+		The list is repopulated in real time; the previous selection is restored
+		when the station is still visible after filtering, so the user does not
+		lose their place while editing the query.
+		"""
+		self._refresh_fav_list()
+		# Announce how many results remain so screen-reader users get feedback.
+		count = self._fav_list.GetCount()
+		if count == 0:
+			ui.message(_("No favourites found"))
+		else:
+			ui.message(_("%d favourites") % count)
+		event.Skip()
+
+
+	def _on_fav_filter_key(self, event):
+		"""Handle key presses in the filter field.
+
+		Down arrow moves focus to the favourites list (mirrors the behaviour of
+		the search field on the All Stations tab).  All other keys are passed on.
+		"""
+		if event.GetKeyCode() == wx.WXK_DOWN:
+			self._fav_list.SetFocus()
+			if self._fav_list.GetCount() > 0 and self._fav_list.GetSelection() == wx.NOT_FOUND:
+				self._fav_list.SetSelection(0)
+		else:
+			event.Skip()
+
+
+		"""Populate station combobox in recording tab from favourites."""
+		favs = self._manager.get_favorites()
+		self._sched_station_cb.Clear()
+		for s in favs:
+			self._sched_station_cb.Append(s.get("name", "?").strip())
+		if favs:
+			self._sched_station_cb.SetSelection(0)
+		self._sched_stations = favs
 
 	def _refresh_sched_stations(self):
 		"""Populate station combobox in recording tab from favourites."""
@@ -902,22 +960,76 @@ class RadioDialog(wx.Dialog):
 		self._update_fav_button()
 
 	def _refresh_fav_list(self):
+		"""Repopulate the favourites list, applying the filter field if non-empty.
+
+		Keeps the current selection on the same station (by stationuuid) when
+		possible so that typing in the filter box does not jump the selection.
+		"""
+		# Remember which station is currently selected so we can restore it.
+		prev_sel = self._fav_list.GetSelection()
+		prev_uuid = None
+		if prev_sel != wx.NOT_FOUND and prev_sel < len(getattr(self, "_fav_filtered", [])):
+			prev_uuid = self._fav_filtered[prev_sel].get("stationuuid")
+
+		query = getattr(self, "_fav_filter", None)
+		query = query.GetValue().strip().lower() if query else ""
+
 		favs = self._manager.get_favorites()
+		if query:
+			filtered = [
+				s for s in favs
+				if query in s.get("name", "").lower()
+				or query in s.get("tags", "").lower()
+				or query in s.get("countrycode", "").lower()
+			]
+		else:
+			filtered = list(favs)
+
+		# Cache filtered list so key handlers can map list indices back to stations.
+		self._fav_filtered = filtered
+
 		self._fav_list.Clear()
-		for s in favs:
+		for s in filtered:
 			self._fav_list.Append(_station_label(s))
-		if favs:
-			self._fav_list.SetSelection(0)
+
+		# Restore selection: prefer the previously selected station; fall back to 0.
+		if filtered:
+			restore = 0
+			if prev_uuid:
+				for i, s in enumerate(filtered):
+					if s.get("stationuuid") == prev_uuid:
+						restore = i
+						break
+			self._fav_list.SetSelection(restore)
+
 		self._update_fav_button()
 		self._update_save_audio_btn()
 
 	def _refresh_fav_list_no_select(self):
 		"""Used in tab switching: populates the list but does not call SetSelection.
-		SetSelection sends Windows EVENT_OBJECT_SELECTION to NVDA's list
-		Causes it to announce ; This is not desired when reading the tab name."""
+
+		SetSelection sends Windows EVENT_OBJECT_SELECTION to NVDA's list,
+		causing it to announce; This is not desired when reading the tab name.
+		Also applies the current filter so the list is consistent.
+		"""
+		query = getattr(self, "_fav_filter", None)
+		query = query.GetValue().strip().lower() if query else ""
+
 		favs = self._manager.get_favorites()
+		if query:
+			filtered = [
+				s for s in favs
+				if query in s.get("name", "").lower()
+				or query in s.get("tags", "").lower()
+				or query in s.get("countrycode", "").lower()
+			]
+		else:
+			filtered = list(favs)
+
+		self._fav_filtered = filtered
+
 		self._fav_list.Clear()
-		for s in favs:
+		for s in filtered:
 			self._fav_list.Append(_station_label(s))
 		self._update_fav_button()
 
@@ -1242,7 +1354,12 @@ class RadioDialog(wx.Dialog):
 		if idx == wx.NOT_FOUND:
 			return None, -1
 		if self._notebook.GetSelection() == 1:  # Favourites
-			favs = self._manager.get_favorites()
+			# Use _fav_filtered so the index matches the (possibly filtered) list
+			# that is currently displayed.  Fall back to full favourites list when
+			# the filter has not been applied yet (e.g. during initialisation).
+			favs = getattr(self, "_fav_filtered", None)
+			if favs is None:
+				favs = self._manager.get_favorites()
 			if idx >= len(favs):
 				return None, -1
 			return favs[idx], idx
@@ -1256,7 +1373,7 @@ class RadioDialog(wx.Dialog):
 		self._update_save_audio_btn()
 
 	def _update_save_audio_btn(self):
-		"""Enable/disable the Save and Clear Audio Profile buttons based on current selection."""
+		"""Enable/disable the Save, Clear Audio Profile and Rename buttons based on current selection."""
 		if not hasattr(self, "_save_audio_btn"):
 			return
 		is_fav_tab = (self._notebook.GetSelection() == 1)
@@ -1265,6 +1382,7 @@ class RadioDialog(wx.Dialog):
 		has_profile = bool(station and station.get("station_audio"))
 		self._save_audio_btn.Enable(is_fav_tab and is_fav)
 		self._clear_audio_btn.Enable(is_fav_tab and is_fav and has_profile)
+		self._rename_btn.Enable(is_fav_tab and is_fav)
 
 	def _on_save_audio_profile(self, event):
 		"""Save current volume and active effects as an audio profile for the selected station."""
@@ -1296,6 +1414,50 @@ class RadioDialog(wx.Dialog):
 		ui.message(_("Audio profile cleared for %(station)s") % {"station": name})
 		self._update_save_audio_btn()
 
+	def _on_rename_station(self, event=None):
+		"""Rename the selected favourite station.
+
+		Opens a single-field dialog pre-filled with the current display name.
+		On confirmation the new name is written to station["name"], the
+		favourites list is saved, and all visible lists are refreshed so the
+		change is reflected immediately everywhere (fav list, sched/timer combos).
+		The renamed station keeps its selection in the favourites list.
+		"""
+		station, _idx = self._get_selected_station()
+		if not station or not self._manager.is_favorite(station):
+			return
+
+		current_name = station.get("name", "").strip()
+
+		dlg = wx.TextEntryDialog(
+			self,
+			_("Enter a new name for the station:"),
+			_("Rename Station"),
+			current_name,
+		)
+		if dlg.ShowModal() != wx.ID_OK:
+			dlg.Destroy()
+			return
+
+		new_name = dlg.GetValue().strip()
+		dlg.Destroy()
+
+		if not new_name:
+			ui.message(_("Name cannot be empty"))
+			return
+		if new_name == current_name:
+			return
+
+		station["name"] = new_name
+		self._manager._save_favorites()
+
+		# Refresh all views that show station names.
+		self._refresh_fav_list()
+		self._refresh_sched_stations()
+		self._refresh_timer_stations()
+
+		ui.message(_("Renamed to: %s") % new_name)
+
 	def _update_fav_button(self):
 		station, _idx = self._get_selected_station()
 		is_fav = bool(station and self._manager.is_favorite(station))
@@ -1312,7 +1474,18 @@ class RadioDialog(wx.Dialog):
 		if not station:
 			return
 		if self._notebook.GetSelection() == 1:  # Favourites
-			self._play_callback(station, self._manager.get_favorites(), idx)
+			# Always pass the full (unfiltered) favourites list and find the
+			# station's real index in it, so next/prev navigation in the plugin
+			# works correctly even when a filter is active.
+			all_favs = self._manager.get_favorites()
+			try:
+				real_idx = next(
+					i for i, s in enumerate(all_favs)
+					if s.get("stationuuid") == station.get("stationuuid")
+				)
+			except StopIteration:
+				real_idx = idx
+			self._play_callback(station, all_favs, real_idx)
 		else:
 			self._play_callback(station, self._stations, idx)
 		self._update_fav_button()
@@ -1532,8 +1705,8 @@ class RadioDialog(wx.Dialog):
 			if tab == 0:  # All Stations
 				stations = self._stations
 				lst = self._all_list
-			elif tab == 1:  # Favourites
-				stations = self._manager.get_favorites()
+			elif tab == 1:  # Favourites — navigate the visible (filtered) list
+				stations = getattr(self, "_fav_filtered", None) or self._manager.get_favorites()
 				lst = self._fav_list
 			else:
 				stations = None
@@ -1547,7 +1720,17 @@ class RadioDialog(wx.Dialog):
 					else:
 						next_idx = (cur - 1) % count if cur != wx.NOT_FOUND else count - 1
 					lst.SetSelection(next_idx)
-					self._play_callback(stations[next_idx], stations, next_idx, announce=True)
+					s = stations[next_idx]
+					if tab == 1:
+						# Resolve to real index in the full list for the plugin.
+						all_favs = self._manager.get_favorites()
+						try:
+							real_idx = next(i for i, f in enumerate(all_favs) if f.get("stationuuid") == s.get("stationuuid"))
+						except StopIteration:
+							real_idx = next_idx
+						self._play_callback(s, all_favs, real_idx, announce=True)
+					else:
+						self._play_callback(s, stations, next_idx, announce=True)
 					self._update_fav_button()
 					self._update_save_audio_btn()
 			return
@@ -1601,6 +1784,12 @@ class RadioDialog(wx.Dialog):
 				wx.CallAfter(self._plugin._stop_from_dialog)
 			return
 
+		if key == wx.WXK_F9:
+			# Rename the selected favourite — only meaningful on the Favourites tab.
+			if self._notebook.GetSelection() == 1 and self._rename_btn.IsEnabled():
+				self._on_rename_station()
+			return
+
 		if key == wx.WXK_F1:
 			self._open_help()
 			return
@@ -1633,7 +1822,12 @@ class RadioDialog(wx.Dialog):
 				station, idx = self._get_selected_station()
 				if station:
 					if self._notebook.GetSelection() == 1:  # Favourites
-						self._play_callback(station, self._manager.get_favorites(), idx, announce=True)
+						all_favs = self._manager.get_favorites()
+						try:
+							real_idx = next(i for i, f in enumerate(all_favs) if f.get("stationuuid") == station.get("stationuuid"))
+						except StopIteration:
+							real_idx = idx
+						self._play_callback(station, all_favs, real_idx, announce=True)
 					else:
 						self._play_callback(station, self._stations, idx, announce=True)
 					self._update_fav_button()
@@ -1709,18 +1903,34 @@ class RadioDialog(wx.Dialog):
 		event.Skip()
 
 	def _handle_fav_move_x(self):
+		"""Reorder favourites via X+X.  Works correctly even when a filter is active:
+		the visible list indices are resolved back to positions in the full favourites
+		list before the move is applied, so the order is always saved correctly."""
 		idx = self._fav_list.GetSelection()
 		if idx == wx.NOT_FOUND:
 			return
 
-		favs = self._manager.get_favorites()
-		
+		# The displayed list may be a filtered subset; resolve to the full list.
+		filtered = getattr(self, "_fav_filtered", None) or self._manager.get_favorites()
+		favs     = self._manager.get_favorites()
+
+		if idx >= len(filtered):
+			return
+
+		def _real_idx(station):
+			"""Return the station's index in the full favourites list."""
+			uid = station.get("stationuuid")
+			try:
+				return next(i for i, s in enumerate(favs) if s.get("stationuuid") == uid)
+			except StopIteration:
+				return -1
+
 		if self._moving_station_index == -1:
 			self._moving_station_index = idx
-			station_name = favs[idx].get("name", "").strip()
+			station_name = filtered[idx].get("name", "").strip()
 			winsound.Beep(440, 100)  # Mid tone: item picked
 			ui.message(_("%s selected. Navigate to the target position and press X again to drop.") % station_name)
-		
+
 		else:
 			if self._moving_station_index == idx:
 				self._moving_station_index = -1
@@ -1728,17 +1938,36 @@ class RadioDialog(wx.Dialog):
 				ui.message(_("Move cancelled"))
 				return
 
-			source_idx = self._moving_station_index
-			target_idx = idx
-			
-			station = favs.pop(source_idx)
-			favs.insert(target_idx, station)
-			
+			source_vis = self._moving_station_index
+			target_vis = idx
+
+			source_station = filtered[source_vis]
+			target_station = filtered[target_vis]
+
+			source_real = _real_idx(source_station)
+			target_real = _real_idx(target_station)
+
+			if source_real == -1 or target_real == -1:
+				self._moving_station_index = -1
+				return
+
+			station = favs.pop(source_real)
+			# After popping, the target index may have shifted by one.
+			insert_at = target_real if target_real <= source_real else target_real - 1
+			favs.insert(insert_at, station)
+
 			self._manager._favorites = favs
 			self._manager._save_favorites()
 			self._refresh_fav_list()
-			
-			self._fav_list.SetSelection(target_idx)
+
+			# Restore selection to the moved station in the (now refreshed) list.
+			new_filtered = getattr(self, "_fav_filtered", [])
+			new_uid = station.get("stationuuid")
+			new_vis = next(
+				(i for i, s in enumerate(new_filtered) if s.get("stationuuid") == new_uid),
+				target_vis,
+			)
+			self._fav_list.SetSelection(new_vis)
 			self._moving_station_index = -1
 			winsound.Beep(880, 100)  # High tone: successfully moved
 			ui.message(_("Moved: %s") % station.get("name", "").strip())
@@ -1767,7 +1996,12 @@ class RadioDialog(wx.Dialog):
 				station, idx = self._get_selected_station()
 				if station:
 					if self._notebook.GetSelection() == 1:  # Favourites
-						self._play_callback(station, self._manager.get_favorites(), idx, announce=True)
+						all_favs = self._manager.get_favorites()
+						try:
+							real_idx = next(i for i, s in enumerate(all_favs) if s.get("stationuuid") == station.get("stationuuid"))
+						except StopIteration:
+							real_idx = idx
+						self._play_callback(station, all_favs, real_idx, announce=True)
 					else:
 						self._play_callback(station, self._stations, idx, announce=True)
 					self._update_fav_button()
@@ -1811,10 +2045,21 @@ class RadioDialog(wx.Dialog):
 			else:
 				station, idx = self._get_selected_station()
 				if station:
-					self._play_callback(station, self._manager.get_favorites(), idx, announce=True)
+					# Pass the full favourites list so next/prev in the plugin
+					# navigates all favourites, not just the filtered subset.
+					all_favs = self._manager.get_favorites()
+					try:
+						real_idx = next(
+							i for i, s in enumerate(all_favs)
+							if s.get("stationuuid") == station.get("stationuuid")
+						)
+					except StopIteration:
+						real_idx = idx
+					self._play_callback(station, all_favs, real_idx, announce=True)
 					self._update_fav_button()
 		elif key == wx.WXK_RIGHT:
-			favs = self._manager.get_favorites()
+			# Navigate within the currently visible (possibly filtered) list.
+			favs = getattr(self, "_fav_filtered", None) or self._manager.get_favorites()
 			count = self._fav_list.GetCount()
 			if count == 0:
 				event.Skip()
@@ -1823,11 +2068,17 @@ class RadioDialog(wx.Dialog):
 			next_idx = (idx + 1) % count if idx != wx.NOT_FOUND else 0
 			self._fav_list.SetSelection(next_idx)
 			if next_idx < len(favs):
-				self._play_callback(favs[next_idx], favs, next_idx, announce=False)
+				s = favs[next_idx]
+				all_favs = self._manager.get_favorites()
+				try:
+					real_idx = next(i for i, f in enumerate(all_favs) if f.get("stationuuid") == s.get("stationuuid"))
+				except StopIteration:
+					real_idx = next_idx
+				self._play_callback(s, all_favs, real_idx, announce=False)
 			self._update_fav_button()
 			self._update_save_audio_btn()
 		elif key == wx.WXK_LEFT:
-			favs = self._manager.get_favorites()
+			favs = getattr(self, "_fav_filtered", None) or self._manager.get_favorites()
 			count = self._fav_list.GetCount()
 			if count == 0:
 				event.Skip()
@@ -1836,7 +2087,13 @@ class RadioDialog(wx.Dialog):
 			prev_idx = (idx - 1) % count if idx != wx.NOT_FOUND else 0
 			self._fav_list.SetSelection(prev_idx)
 			if prev_idx < len(favs):
-				self._play_callback(favs[prev_idx], favs, prev_idx, announce=False)
+				s = favs[prev_idx]
+				all_favs = self._manager.get_favorites()
+				try:
+					real_idx = next(i for i, f in enumerate(all_favs) if f.get("stationuuid") == s.get("stationuuid"))
+				except StopIteration:
+					real_idx = prev_idx
+				self._play_callback(s, all_favs, real_idx, announce=False)
 			self._update_fav_button()
 			self._update_save_audio_btn()
 		else:
