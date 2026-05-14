@@ -18,14 +18,23 @@ addon_info = AddonInfo(
 	addon_description=_("""FreeRadio is an internet radio add-on for NVDA that provides seamless access to thousands of stations via the Radio Browser open directory. It features a fully accessible station browser with search, country filter, favourites management, and per-station audio profiles. Playback is handled by a prioritised backend chain (BASS, VLC, PotPlayer, Windows Media Player) with support for volume control, audio effects, output device selection, and simultaneous audio mirroring to a second device. Additional features include instant and scheduled recording, sleep and alarm timers, automatic ICY metadata announcements, Shazam-based music recognition, and a liked-songs log. All controls and shortcuts are designed for NVDA accessibility."""),
 	
 	# version
-	addon_version="2026.19.3",
+	addon_version="2026.19.4",
 	
 	# Brief changelog for this version
 	# Translators: what's new content for the add-on version
 	addon_changelog=_("""
-- Fixed: The "Announce currently playing station" script (Ctrl+Win+I) was silent when NVDA's speech mode was set to "on demand". Speech is now forced by temporarily switching to talk mode before announcing and restoring on-demand mode immediately after.
-- Added: A real-time filter field to the Favourites tab. Typing in the field instantly narrows the list; the previous selection is preserved by station UUID so focus does not jump while editing. Down arrow moves focus from the filter field into the list. All actions (play, delete, reorder with X, F3/F4 navigation, audio profiles) resolve the visible index back to the full favourites list, so plugin-side next/prev navigation and save operations remain correct when a filter is active.
-- Added: A "Rename Station" button to the Favourites tab (also accessible via F9) that lets users change the display name of any favourite. The new name is saved immediately and reflected across the favourites list, the recording scheduler, and the timer station dropdowns. The selection is preserved after renaming.
+**Focus management after item removal**
+- Favorites list: after deleting a station, focus and selection automatically move to the next item in the list. If the deleted station was the last one, focus moves to the previous item. If the list becomes empty, focus moves to the Play button.
+- Liked Songs list: same behaviour — after removing a song, focus stays on the next item, or moves to the Refresh button if the list is empty.
+**Delete key shortcut**
+- Pressing `Delete` while a station is selected in the Favorites list now triggers the Delete Station button (equivalent to clicking it), provided the button is enabled.
+- Pressing `Delete` while a song is selected in the Liked Songs list now triggers the Remove button, provided the button is enabled.
+- In both cases the key has no effect when no valid item is selected or the corresponding button is disabled.
+- Added a new "Mute notifications" checkbox to FreeRadio settings (unchecked by default).
+- When enabled, NVDA no longer announces station changes, playback state changes (play, pause, stop), or recording events (started, stopped, finished).
+- Error messages, favourites feedback, music recognition results, and update notifications are intentionally unaffected.
+- Added an unassigned script_toggleMuteNotifications input gesture that toggles the setting on the fly. Assign a key combination via NVDA's Input Gestures dialog under the FreeRadio category.
+- Two module-level helpers (_notify, _notify_on_demand) centralise the mute check, keeping call sites clean.
 """),
 	
 	# Author(s)

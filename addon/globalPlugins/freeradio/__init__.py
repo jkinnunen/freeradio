@@ -48,6 +48,23 @@ import addonHandler
 addonHandler.initTranslation()
 
 
+def _notifications_muted():
+	"""Return True when the user has enabled 'Mute notifications' in settings."""
+	return config.conf["freeradio"].get("mute_notifications", False)
+
+
+def _notify(msg):
+	"""Announce msg via ui.message unless notifications are muted."""
+	if not _notifications_muted():
+		ui.message(msg)
+
+
+def _notify_on_demand(msg):
+	"""Announce msg via _speak_on_demand unless notifications are muted."""
+	if not _notifications_muted():
+		_speak_on_demand(msg)
+
+
 try:
 	_ = globals()['_']
 except KeyError:
@@ -80,6 +97,7 @@ def _init_config():
 		"audio_device":      "integer(default=-1)",
 		"disable_bass":          "boolean(default=False)",
 		"announce_track_changes":"boolean(default=False)",
+		"mute_notifications":    "boolean(default=False)",
 		"save_liked_songs":       "boolean(default=False)",
 		"recordings_dir":         "string(default='')",
 		"auto_check_updates":     "boolean(default=True)",
@@ -130,10 +148,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			main_player=self._player,   # pass main player to avoid interruption
 		)
 		self._recorder._notify_start  = lambda rec: wx.CallAfter(
-			ui.message, _("Recording started: %s") % rec.station.get("name", "")
+			_notify, _("Recording started: %s") % rec.station.get("name", "")
 		)
 		self._recorder._notify_finish = lambda rec: wx.CallAfter(
-			ui.message, _("Recording finished: %s") % os.path.basename(rec.output_path or "")
+			_notify, _("Recording finished: %s") % os.path.basename(rec.output_path or "")
 		)
 		self._stations      = []
 		self._current_index = -1
@@ -427,10 +445,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			if _has_media:
 				if _is_playing:
 					self._player.pause()
-					ui.message(_("Radio paused"))
+					_notify(_("Radio paused"))
 				else:
 					self._player.resume()
-					ui.message(_("Playing"))
+					_notify(_("Playing"))
 				return
 			if _action == "favorites":
 				self._open_dialog_on_favorites()
@@ -485,7 +503,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 						self._player.stop()
 					self._stations      = []
 					self._current_index = -1
-					ui.message(_("Radio stopped"))
+					_notify(_("Radio stopped"))
 
 			wx.CallAfter(_confirm)
 			return
@@ -496,7 +514,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._player.stop()
 		self._stations      = []
 		self._current_index = -1
-		ui.message(_("Radio stopped"))
+		_notify(_("Radio stopped"))
 
 	@script(
 		description=_("Play next station"),
@@ -950,7 +968,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 						self._player.stop()
 					self._stations      = []
 					self._current_index = -1
-					ui.message(_("Radio stopped"))
+					_notify(_("Radio stopped"))
 
 			wx.CallAfter(_confirm)
 			return
@@ -962,7 +980,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._player.stop()
 		self._stations      = []
 		self._current_index = -1
-		ui.message(_("Radio stopped"))
+		_notify(_("Radio stopped"))
 
 	def _announce_now(self):
 		"""Announce the currently playing station name (and ICY track if available).
@@ -993,7 +1011,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				wx.CallAfter(ui.message, msg)
 			threading.Thread(target=_read_and_announce, daemon=True).start()
 		else:
-			ui.message(_("Paused: %s") % name)
+			_notify(_("Paused: %s") % name)
 
 	def _on_audio_device_lost(self, lost_index):
 		"""Called from a background thread when the selected audio device is removed.
@@ -1045,9 +1063,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				# Song-capture is active: user manually ends the recording early.
 				path = self._recorder.stop_song_capture()
 				if path:
-					ui.message(_("Song recording stopped: %s") % os.path.basename(path))
+					_notify(_("Song recording stopped: %s") % os.path.basename(path))
 				else:
-					ui.message(_("Song recording stopped"))
+					_notify(_("Song recording stopped"))
 				return
 
 			if not self._player.has_media():
@@ -1109,12 +1127,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			if self._recorder.is_recording():
 				path = self._recorder.stop(self._player)
 				if path:
-					wx.CallAfter(
-						ui.message,
-						_("Recording stopped: %s") % os.path.basename(path),
-					)
+					wx.CallAfter(_notify, _("Recording stopped: %s") % os.path.basename(path))
 				else:
-					wx.CallAfter(ui.message, _("Recording stopped"))
+					wx.CallAfter(_notify, _("Recording stopped"))
 				return
 
 			if not self._player.has_media():
@@ -1124,7 +1139,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			name = self._player.get_current_name()
 			try:
 				self._recorder.start(self._player, name)
-				wx.CallAfter(ui.message, _("Recording started: %s") % name)
+				wx.CallAfter(_notify, _("Recording started: %s") % name)
 			except Exception as exc:
 				log.error("FreeRadio: instant recording failed to start: %s", exc)
 				wx.CallAfter(ui.message, _("Could not start recording"))
@@ -1148,6 +1163,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			os.startfile(recordings_dir)
 		except Exception as e:
 			ui.message(_("Could not open recordings folder: %s") % str(e))
+
+	@script(
+		description=_("Toggle mute notifications (station changes, playback, recording)"),
+		category=_("FreeRadio"),
+		# No gesture assigned by default; bind one via NVDA's Input Gestures dialog.
+	)
+	def script_toggleMuteNotifications(self, gesture):
+		current = config.conf["freeradio"].get("mute_notifications", False)
+		config.conf["freeradio"]["mute_notifications"] = not current
+		if not current:
+			# Notifications are now muted — speak this final confirmation before silencing.
+			ui.message(_("Notifications muted"))
+		else:
+			ui.message(_("Notifications unmuted"))
 
 	def _open_dialog(self):
 		if self._dialog is None:
@@ -1700,7 +1729,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 								_("Song recording saved: %s") % os.path.basename(path),
 							)
 						else:
-							wx.CallAfter(ui.message, _("Song recording stopped"))
+							wx.CallAfter(_notify, _("Song recording stopped"))
 
 				if not icy:
 					# This station publishes no ICY metadata.
@@ -1723,12 +1752,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				if self._icy_last_title is None:
 					# First read after a station change — announce immediately and store.
 					self._icy_last_title = icy
-					wx.CallAfter(ui.message, icy)
+					wx.CallAfter(_notify, icy)
 					continue
 
 				if icy != self._icy_last_title:
 					self._icy_last_title = icy
-					wx.CallAfter(ui.message, icy)
+					wx.CallAfter(_notify, icy)
 			except Exception:
 				pass
 
@@ -1785,7 +1814,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._icy_last_title  = None        # None = station just changed; suppress first read
 		wx.CallAfter(self._start_playing, url, name, url_resolved)
 		if announce:
-			wx.CallAfter(ui.message, name)
+			if not _notifications_muted():
+				wx.CallAfter(ui.message, name)
 
 	def _start_playing(self, url, name, url_resolved=""):
 		station = getattr(self, "_pending_station", {})
@@ -1907,6 +1937,15 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			config.conf["freeradio"].get("announce_track_changes", False)
 		)
 		sHelper.addItem(self._announce_track_changes)
+
+		self._mute_notifications = wx.CheckBox(
+			self,
+			label=_("&Mute notifications (station changes, playback, recording)"),
+		)
+		self._mute_notifications.SetValue(
+			config.conf["freeradio"].get("mute_notifications", False)
+		)
+		sHelper.addItem(self._mute_notifications)
 
 		self._save_liked_songs = wx.CheckBox(
 			self,
@@ -2257,6 +2296,7 @@ class FreeRadioSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		config.conf["freeradio"]["volume"]          = min(100, vol)
 		config.conf["freeradio"]["resume_on_start"]        = self._resume.GetValue()
 		config.conf["freeradio"]["announce_track_changes"] = self._announce_track_changes.GetValue()
+		config.conf["freeradio"]["mute_notifications"]     = self._mute_notifications.GetValue()
 		config.conf["freeradio"]["save_liked_songs"]        = self._save_liked_songs.GetValue()
 		
 		# Save disable_bass setting
