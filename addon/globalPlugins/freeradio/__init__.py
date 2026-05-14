@@ -2572,7 +2572,8 @@ class _TimerManager:
 			threading.Thread(target=self._fade_and_stop, daemon=True).start()
 		else:
 			self._player.stop()
-			wx.CallAfter(ui.message, _("Sleep timer: radio stopped"))
+			# Use _notify so the message is suppressed when notifications are muted.
+			wx.CallAfter(_notify, _("Sleep timer: radio stopped"))
 
 	def _fade_and_stop(self):
 		"""Gradually reduce volume to 0 over 60 seconds, then stop."""
@@ -2582,7 +2583,8 @@ class _TimerManager:
 		_STEP_INTERVAL  = _FADE_DURATION / _FADE_STEPS
 
 		original_volume = self._player.get_volume()
-		wx.CallAfter(ui.message, _("Sleep timer: fading out…"))
+		# Use _notify so both fade-out messages are suppressed when notifications are muted.
+		wx.CallAfter(_notify, _("Sleep timer: fading out…"))
 
 		for step in range(_FADE_STEPS):
 			for tick in range(int(_STEP_INTERVAL * 10)):
@@ -2596,7 +2598,8 @@ class _TimerManager:
 
 		self._player.stop()
 		self._player.set_volume(original_volume)
-		wx.CallAfter(ui.message, _("Sleep timer: radio stopped"))
+		# Use _notify so the stop message is suppressed when notifications are muted.
+		wx.CallAfter(_notify, _("Sleep timer: radio stopped"))
 
 	def _loop(self):
 		import datetime as _dt
