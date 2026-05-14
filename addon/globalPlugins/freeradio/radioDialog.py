@@ -1625,10 +1625,21 @@ class RadioDialog(wx.Dialog):
 		result = dlg.ShowModal()
 		dlg.Destroy()
 		if result == wx.ID_YES:
+			# Remember the deleted index so we can restore focus afterwards.
+			deleted_idx = _idx
 			self._manager.remove_favorite(station)
 			ui.message(_("Station deleted"))
 			self._refresh_fav_list()
 			self._update_fav_button()
+			# After deletion keep focus on the next item (or the last one if the
+			# deleted item was at the end); move to Play button if the list is empty.
+			count = self._fav_list.GetCount()
+			if count > 0:
+				new_idx = min(deleted_idx, count - 1)
+				self._fav_list.SetSelection(new_idx)
+				self._fav_list.SetFocus()
+			else:
+				self._play_btn.SetFocus()
 
 	def _on_add_custom(self, event):
 		dlg = AddCustomStationDialog(self)
@@ -2096,6 +2107,9 @@ class RadioDialog(wx.Dialog):
 				self._play_callback(s, all_favs, real_idx, announce=False)
 			self._update_fav_button()
 			self._update_save_audio_btn()
+		elif key == wx.WXK_DELETE:
+			if self._del_btn.IsEnabled():
+				self._on_delete_station(event)
 		else:
 			event.Skip()
 
@@ -2265,6 +2279,7 @@ class RadioDialog(wx.Dialog):
 
 		self._liked_list.Bind(wx.EVT_CHAR,    self._on_list_char)
 		self._liked_list.Bind(wx.EVT_LISTBOX, self._on_liked_selected)
+		self._liked_list.Bind(wx.EVT_KEY_DOWN, self._on_liked_list_key)
 		self._liked_spotify_btn.Bind(wx.EVT_BUTTON, self._on_liked_spotify)
 		self._liked_youtube_btn.Bind(wx.EVT_BUTTON, self._on_liked_youtube)
 		self._liked_remove_btn.Bind(wx.EVT_BUTTON,  self._on_liked_remove)
@@ -2350,6 +2365,14 @@ class RadioDialog(wx.Dialog):
 		url = "https://www.youtube.com/results?search_query=" + urllib.parse.quote(song)
 		webbrowser.open(url)
 
+	def _on_liked_list_key(self, event):
+		"""Liked Songs list — Delete key triggers Remove button when enabled."""
+		if event.GetKeyCode() == wx.WXK_DELETE:
+			if self._liked_remove_btn.IsEnabled():
+				self._on_liked_remove(event)
+		else:
+			event.Skip()
+
 	def _on_liked_remove(self, event):
 		idx = self._liked_list.GetSelection()
 		if idx == wx.NOT_FOUND:
@@ -2387,8 +2410,25 @@ class RadioDialog(wx.Dialog):
 		except Exception as e:
 			ui.message(_("Could not remove song: %s") % str(e))
 			return
+		# Remember the deleted index so we can restore focus afterwards.
+		deleted_idx = idx
 		self._refresh_liked_list()
 		ui.message(_("Removed: %s") % song)
+		# After deletion keep focus on the next item (or the last one if the
+		# deleted item was at the end); move to Refresh button if the list is empty.
+		count = self._liked_list.GetCount()
+		real_song_count = sum(
+			1 for i in range(count)
+			if self._liked_list.GetString(i) != _("No liked songs yet.")
+		)
+		if real_song_count > 0:
+			new_idx = min(deleted_idx, real_song_count - 1)
+			self._liked_list.SetSelection(new_idx)
+			self._liked_list.SetFocus()
+			# Update button states.
+			self._on_liked_selected(wx.CommandEvent())
+		else:
+			self._liked_refresh_btn.SetFocus()
 
 	def _on_liked_refresh(self, event):
 		self._refresh_liked_list()
