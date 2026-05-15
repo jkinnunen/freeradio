@@ -26,6 +26,20 @@ def _get_radio_browser_error():
 			return mod.RadioBrowserError
 	return Exception
 
+def _notify(msg):
+	"""Proxy to the package-level _notify in __init__.py.
+
+	Fetched lazily via sys.modules to avoid a circular import.
+	Falls back to ui.message when the plugin module is not yet loaded.
+	"""
+	for key, mod in sys.modules.items():
+		if key.endswith("freeradio") and not key.endswith(("radioDialog", "stationManager", "utils", "radioPlayer", "recorder", "musicRecognizer")):
+			fn = getattr(mod, "_notify", None)
+			if callable(fn):
+				fn(msg)
+				return
+	ui.message(msg)
+
 _RadioBrowserError = None  # Determined at first use
 
 def _radio_browser_error():
@@ -1293,17 +1307,12 @@ class RadioDialog(wx.Dialog):
 					pass
 				self._combo_debounce_timer = None
 			self._extra_stations = []
+			self._apply_filters(announce=True)
 			# If there is an active search query, re-run it without a country filter.
-			# Suppress the intermediate announce here; _on_search_results will announce
-			# the final result once the new search completes, avoiding double/triple
-			# NVDA speech (e.g. "35 stations" → "All" → '"blues": 462').
 			query = self._search.GetValue().strip()
 			if query:
 				self._search_stations = []
-				self._apply_filters(announce=False)
 				self._schedule_search(query)
-			else:
-				self._apply_filters(announce=True)
 			event.Skip()
 			return
 
@@ -1347,18 +1356,14 @@ class RadioDialog(wx.Dialog):
 	def _on_combo_fetch_done(self, new_stations, fetch_id):
 		if not self or fetch_id != self._combo_fetch_id:
 			return
-		# If a search query is active, suppress the intermediate country-level
-		# announce here; _on_search_results will announce the final result once
-		# the rescoped search completes, avoiding double NVDA speech.
-		query = self._search.GetValue().strip()
-		has_query = bool(query)
 		if not new_stations:
-			self._apply_filters(announce=not has_query)
+			self._apply_filters(announce=True)
 		else:
 			self._extra_stations = new_stations
-			self._apply_filters(announce=not has_query)
+			self._apply_filters(announce=True)
 		# If there is an active search query, re-run it scoped to the new country.
-		if has_query:
+		query = self._search.GetValue().strip()
+		if query:
 			self._search_stations = []
 			self._schedule_search(query)
 
@@ -1492,7 +1497,7 @@ class RadioDialog(wx.Dialog):
 	def _on_play_clicked(self, event):
 		if self._player.is_playing():
 			self._player.pause()
-			ui.message(_("Radio paused"))
+			_notify(_("Radio paused"))
 			return
 		station, idx = self._get_selected_station()
 		if not station:
@@ -1774,8 +1779,8 @@ class RadioDialog(wx.Dialog):
 			vol = max(0, self._player.get_volume() - 10)
 			self._player.set_volume(vol)
 			config.conf["freeradio"]["volume"] = min(100, vol)
-			ui.message(_("Volume %d") % vol)
 			self._vol_spin.SetValue(vol)
+			_notify(_("Volume %d") % vol)
 			if self._plugin:
 				try:
 					self._plugin._sync_dialog_volume(vol)
@@ -1787,8 +1792,8 @@ class RadioDialog(wx.Dialog):
 			vol = min(200, self._player.get_volume() + 10)
 			self._player.set_volume(vol)
 			config.conf["freeradio"]["volume"] = min(100, vol)
-			ui.message(_("Volume %d") % vol)
 			self._vol_spin.SetValue(vol)
+			_notify(_("Volume %d") % vol)
 			if self._plugin:
 				try:
 					self._plugin._sync_dialog_volume(vol)
@@ -1807,11 +1812,11 @@ class RadioDialog(wx.Dialog):
 		if key == wx.WXK_F7:
 			if self._player.is_playing():
 				self._player.pause()
-				ui.message(_("Radio paused"))
+				_notify(_("Radio paused"))
 			else:
 				if self._player.has_media():
 					self._player.resume()
-					ui.message(_("Playing"))
+					_notify(_("Playing"))
 			return
 
 		if key == wx.WXK_F8:
@@ -1873,14 +1878,14 @@ class RadioDialog(wx.Dialog):
 				vol = min(200, self._player.get_volume() + 10)
 				self._player.set_volume(vol)
 				config.conf["freeradio"]["volume"] = min(100, vol)
-				ui.message(_("Volume %d") % vol)
+				_notify(_("Volume %d") % vol)
 				self._vol_spin.SetValue(vol)
 				return
 			if key == wx.WXK_DOWN:
 				vol = max(0, self._player.get_volume() - 10)
 				self._player.set_volume(vol)
 				config.conf["freeradio"]["volume"] = min(100, vol)
-				ui.message(_("Volume %d") % vol)
+				_notify(_("Volume %d") % vol)
 				self._vol_spin.SetValue(vol)
 				return
 
@@ -2018,7 +2023,7 @@ class RadioDialog(wx.Dialog):
 		elif key == wx.WXK_SPACE:
 			if self._player.is_playing():
 				self._player.pause()
-				ui.message(_("Radio paused"))
+				_notify(_("Radio paused"))
 			else:
 				station, idx = self._get_selected_station()
 				if station:
@@ -2068,7 +2073,7 @@ class RadioDialog(wx.Dialog):
 		if key == wx.WXK_SPACE:
 			if self._player.is_playing():
 				self._player.pause()
-				ui.message(_("Radio paused"))
+				_notify(_("Radio paused"))
 			else:
 				station, idx = self._get_selected_station()
 				if station:
