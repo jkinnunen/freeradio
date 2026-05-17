@@ -8,6 +8,21 @@ FreeRadio utiliza a base de dados aberta [Radio Browser](https://www.radio-brows
 
 Cada estação inclui endereço, país, género, idioma e bitrate; as estações são classificadas por votos dos utilizadores. O FreeRadio liga-se à API através de servidores espelho localizados na Alemanha, Países Baixos e Áustria; se um servidor estiver inacessível, muda automaticamente para o seguinte.
 
+## Adicionar uma Estação ao Radio Browser
+
+Se a estação que procura não estiver no diretório Radio Browser, pode submetê-la em [https://www.radio-browser.info/add](https://www.radio-browser.info/add). Não é necessária conta nem registo.
+
+Preencha o formulário da página:
+
+- **URL da transmissão (Stream URL)** *(obrigatório)* — o endereço direto da transmissão de áudio, terminado em `.mp3`, `.aac`, `.ogg` ou semelhante. Não é o endereço do site da estação, mas sim o endereço bruto da transmissão que colaria num leitor multimédia. A maioria das estações publica o URL da transmissão no seu site ou na secção "Ouvir em direto".
+- **Nome da estação** *(obrigatório)* — o nome da estação tal como deve aparecer no diretório.
+- **Página inicial** — o endereço do site da estação.
+- **País e idioma** — selecione o país de emissão e o idioma a partir das listas pendentes.
+- **Etiquetas** — palavras-chave de género ou tema separadas por vírgulas, por exemplo `notícias`, `jazz`, `clássica`. São utilizadas para pesquisa e filtragem.
+- **URL do logótipo** — uma ligação direta à imagem do logótipo da estação, se disponível.
+
+Após a submissão, a estação é revista e adicionada ao diretório público. Uma vez aceite, aparecerá automaticamente nas pesquisas e nas listagens por país do FreeRadio, uma vez que o diretório é atualizado a partir da API em tempo real.
+
 ## Requisitos
 
 - NVDA 2024.1 ou posterior
@@ -36,6 +51,7 @@ Todos os atalhos podem ser reatribuídos em Menu NVDA → Preferências → Defi
 | `Ctrl+Win+M` | Espelho de áudio | Espelha a transmissão atual para um dispositivo de saída de áudio adicional em simultâneo. Prima novamente para parar o espelhamento. |
 | `Ctrl+Win+E` | Gravação instantânea | Prima uma vez para iniciar a gravação da estação atual; prima novamente para parar. Prima **duas vezes** para iniciar uma **gravação de canção** — o ficheiro recebe o nome da faixa atual e a gravação para automaticamente quando a faixa muda. Prima duas vezes novamente enquanto uma gravação de canção está ativa para terminá-la antecipadamente. A reprodução continua sem interrupção em todos os modos de gravação. Disponível apenas em estações que difundem metadados ICY. |
 | `Ctrl+Win+W` | Abrir pasta de gravações | Abre a pasta com os ficheiros gravados no Explorador de Ficheiros. |
+| *(não atribuído)* | Alternar silenciamento de notificações | Ativa ou desativa o silenciamento de notificações em tempo real. Pode atribuir uma combinação de teclas em Menu NVDA → Preferências → Definir comandos → FreeRadio. |
 
 Os atalhos seguinte/anterior apenas navegam na lista de favoritos; não funcionam com a lista de todas as estações. Quando uma lista está em foco na janela do navegador, as teclas de seta esquerda e direita têm a mesma função — consulte Atalhos na Caixa de Diálogo.
 
@@ -45,7 +61,7 @@ O FreeRadio adiciona também um submenu **FreeRadio** ao menu Ferramentas do NVD
 
 A janela aberta com `Ctrl+Win+R` contém cinco separadores: Todas as Estações, Favoritos, Gravação, Temporizador e Músicas Gostadas. Pode navegar entre separadores com `Ctrl+Tab`.
 
-Quando o separador Todas as Estações abre, as 1.000 estações mais votadas são carregadas automaticamente a partir do Radio Browser. Selecionar um país na lista pendente atualiza a lista para mostrar as estações desse país. Escrever no campo de pesquisa filtra imediatamente a lista carregada; premir `Enter` ou o botão Pesquisar executa uma pesquisa completa na base de dados Radio Browser em simultâneo por nome, país e género.
+Quando o separador Todas as Estações abre, as 1.000 estações mais votadas são carregadas automaticamente a partir do Radio Browser. Selecionar um país na lista pendente atualiza a lista para mostrar as estações desse país. Escrever no campo de pesquisa executa automaticamente uma pesquisa completa na base de dados Radio Browser em simultâneo por nome, país e género (com um atraso de 500 ms após a última tecla premida); não é necessário premir Enter nem qualquer botão.
 
 A lista pendente **Dispositivo de saída** na parte inferior da janela do navegador — fora dos separadores — lista todos os dispositivos de saída de áudio reconhecidos pelo BASS. Selecionar um dispositivo redireciona imediatamente o áudio para ele e guarda a escolha permanentemente; o mesmo dispositivo é utilizado automaticamente na próxima sessão. Se o dispositivo selecionado não estiver ligado, o complemento reverte automaticamente para a predefinição do sistema. Este controlo só é funcional quando o backend BASS está ativo.
 
@@ -71,6 +87,7 @@ As teclas seguintes funcionam apenas quando a janela do Navegador de Estações 
 | `F6` | Aumentar volume | Aumenta o volume em 10 (máximo 200). |
 | `F7` | Pausar / retomar | Pausa se uma estação estiver a reproduzir; retoma se estiver em pausa e os média estiverem carregados. |
 | `F8` | Parar | Para completamente a estação atual e reinicia o leitor. |
+| `F9` | Renomear | Abre a caixa de diálogo de renomeação para a estação em foco no separador Favoritos. |
 
 ### Atalhos de Lista e Navegação
 
@@ -95,14 +112,13 @@ As teclas seguintes funcionam apenas quando a janela do Navegador de Estações 
 
 | Atalho | Função | Descrição |
 |---|---|---|
-| `Alt+R` | Ir para o campo de pesquisa | Move o foco para a caixa de texto de pesquisa. |
-| `Alt+A` | Pesquisar online | Pesquisa o Radio Browser com o texto no campo de pesquisa; nome, país e género são pesquisados em simultâneo. |
+| `Alt+R` | Ir para o campo de pesquisa | Move o foco para a caixa de texto de pesquisa. Pesquisa nome, país e género em simultâneo à medida que escreve. |
 | `Alt+V` | Adicionar / remover favorito | Adiciona a estação selecionada aos favoritos; remove-a se já estiver na lista. |
-| `Alt+T` | Todas as Estações | Muda para o separador Todas as Estações. |
-| `Alt+F` | Favoritos | Muda para o separador Favoritos e coloca o foco na lista. |
-| `Alt+Y` | Gravação | Muda para o separador Gravação. |
-| `Alt+Z` | Temporizador | Muda para o separador Temporizador. |
-| `Alt+B` | Músicas Gostadas | Muda para o separador Músicas Gostadas. |
+| `Alt+1` | Todas as Estações | Muda para o separador Todas as Estações. |
+| `Alt+2` | Favoritos | Muda para o separador Favoritos. |
+| `Alt+3` | Gravação | Muda para o separador Gravação. |
+| `Alt+4` | Temporizador | Muda para o separador Temporizador. |
+| `Alt+5` | Músicas Gostadas | Muda para o separador Músicas Gostadas. |
 | `Alt+K` | Fechar | Fecha a janela; o complemento continua a reproduzir em segundo plano. |
 
 ## Favoritos
@@ -110,6 +126,8 @@ As teclas seguintes funcionam apenas quando a janela do Navegador de Estações 
 A lista de favoritos é uma coleção pessoal de estações guardada permanentemente. Para adicionar uma estação, selecione-a na lista e prima o botão Adicionar aos Favoritos ou use o atalho `Alt+V`. O mesmo atalho remove uma estação que já esteja na lista quando está selecionada.
 
 Os favoritos podem ser reproduzidos com `Ctrl+Win+→` e `Ctrl+Win+←`; estes atalhos funcionam mesmo quando a janela do navegador não está aberta.
+
+Para eliminar uma estação da lista de favoritos, selecione-a e prima o botão **Eliminar Estação** ou a tecla `Delete`. Após a eliminação, o foco e a seleção movem-se automaticamente para a estação seguinte. Se a estação eliminada era a última, o foco vai para a estação anterior. Se a lista ficar vazia, o foco vai para o botão Reproduzir.
 
 ### Reordenar Favoritos
 
@@ -143,7 +161,7 @@ O reconhecimento funciona da seguinte forma: uma curta amostra de áudio é capt
 
 O atalho `Ctrl+Win+M` duplica a transmissão atual para um segundo dispositivo de saída de áudio em simultâneo.
 
-Na primeira pressão, aparece uma caixa de diálogo de seleção com os dispositivos de saída disponíveis. Depois de escolher um dispositivo, o espelhamento inicia e a reprodução principal continua sem interrupção. Premir o atalho novamente para o espelhamento.
+Na primeira pressão, aparece uma caixa de diálogo de seleção com os dispositivos de saída disponíveis. Depois de escolher um dispositivo, o espelhamento inicia e a reprodução principal continua sem interrupção. Prima o atalho novamente para parar o espelhamento.
 
 **Casos de utilização:**
 - **Colunas + auscultadores** — Permita que um convidado acompanhe a mesma transmissão nos auscultadores enquanto ouve pelas colunas do computador.
@@ -170,7 +188,7 @@ Se a hora introduzida já tiver passado, a gravação é agendada para o dia seg
 
 ## Temporizador
 
-Abra o separador Temporizador no navegador de estações (`Alt+Z`). É possível adicionar dois tipos de temporizador:
+Abra o separador Temporizador no navegador de estações (`Alt+4`). É possível adicionar dois tipos de temporizador:
 
 **Alarme — iniciar rádio:** Inicia automaticamente a reprodução de uma estação selecionada dos seus favoritos à hora especificada. Escolha uma estação e introduza a hora no formato HH:MM.
 
@@ -187,8 +205,10 @@ As seguintes opções podem ser configuradas em Menu NVDA → Preferências → 
 | Dispositivo de saída de áudio (backend BASS) | Define o dispositivo de saída de áudio para reprodução de rádio. A lista inclui todos os dispositivos compatíveis com BASS no sistema, mais uma opção "Predefinição do sistema". As alterações são aplicadas imediatamente ao guardar; se o dispositivo selecionado for desligado, o complemento reverte automaticamente para a predefinição do sistema e anuncia a alteração. Só ativo quando o backend BASS está em uso. |
 | Volume | Define o volume inicial do complemento (0–200). As alterações feitas durante a reprodução com `Ctrl+Win+↑` / `Ctrl+Win+↓` também são refletidas aqui. |
 | Efeito de áudio predefinido | Define o efeito de áudio aplicado quando o NVDA inicia ou uma estação começa a reproduzir. O efeito selecionado corresponde à lista de Efeitos no Navegador de Estações. Só ativo quando o backend BASS está em uso. |
+| Transição entre estações (backend BASS) | Controla o comportamento de transição ao mudar de estação. **Corte imediato** (predefinição) para a estação anterior imediatamente antes de a nova começar. **Transição curta (1 segundo)** e **Transição normal (2 segundos)** iniciam a nova estação sem pausa, desvanecendo gradualmente a anterior em segundo plano assim que o novo fluxo é confirmado. Não tem efeito nem impacto no desempenho quando definido como Corte imediato. Só disponível com o backend BASS. |
 | Retomar última estação ao iniciar o NVDA | Quando ativado, a última estação reproduzida reinicia automaticamente sempre que o NVDA inicia. |
 | Anunciar automaticamente mudanças de faixa (metadados ICY) | Quando ativado, o NVDA lê automaticamente o novo nome da faixa sempre que muda numa estação que difunde metadados ICY. A primeira faixa também é anunciada imediatamente ao mudar para uma nova estação. Desativado por predefinição. |
+| Silenciar notificações (mudanças de estação, reprodução, gravação) | Quando ativado, o NVDA deixa de anunciar mudanças de estação, alterações do estado de reprodução (reproduzir, pausar, parar) e eventos de gravação (iniciada, parada, concluída). Mensagens de erro, feedback de favoritos, resultados do reconhecimento musical e notificações de atualização não são afetados. Pode também ser alternado em tempo real através de um gesto de entrada não atribuído. Desativado por predefinição. |
 | Guardar músicas gostadas em ficheiro de texto | Quando ativado, as informações de faixa copiadas para a área de transferência ao premir `Ctrl+Win+I` três vezes são também adicionadas a `Documents\FreeRadio Recordings\likedSongs.txt`. Se não existirem metadados ICY, o resultado do reconhecimento Shazam é guardado no mesmo ficheiro. Desativado por predefinição. |
 | Quando Ctrl+Win+P é premido sem reprodução ativa | Determina o que acontece quando este atalho é premido e nada está a reproduzir: iniciar a última estação ou abrir a lista de favoritos. |
 | Quando Ctrl+Win+P é premido duas vezes | Seleciona o que acontece quando o atalho é premido duas vezes rapidamente: não fazer nada, abrir a lista de favoritos, abrir o separador de gravação ou abrir o separador do temporizador. Quando "não fazer nada" está selecionado, a primeira pressão responde instantaneamente sem atraso. |
@@ -200,6 +220,19 @@ As seguintes opções podem ser configuradas em Menu NVDA → Preferências → 
 | Pasta de gravações | Define a pasta onde os ficheiros gravados são guardados. Se deixado em branco, é utilizada a localização predefinida `Documents\FreeRadio Recordings\`. Um botão Procurar permite selecionar a pasta de forma interativa. As alterações têm efeito imediatamente após guardar. |
 | Verificar atualizações automaticamente | Quando ativado, é efetuada uma verificação de atualizações em segundo plano sempre que o NVDA inicia; é emitida uma notificação se for encontrada uma nova versão. Quando desativado, as verificações automáticas são interrompidas mas as verificações manuais continuam disponíveis. |
 | Desativar verificação de conectividade à Internet antes de reproduzir | Recomendado para utilizadores que experimentam um atraso antes de uma estação começar a reproduzir. Também útil quando o DNS está bloqueado. |
+
+## Silenciamento de Notificações
+
+Quando a opção **Silenciar notificações** está ativada nas Definições, o NVDA suprime os seguintes anúncios automáticos:
+
+- Nome da estação quando uma nova estação começa a reproduzir
+- Alterações do estado de reprodução: reproduzir, pausar, parar
+- Eventos de gravação: iniciada, parada, concluída (gravações instantâneas, de canção e agendadas)
+- Anúncios de mudança de faixa, mesmo quando **Anunciar automaticamente mudanças de faixa** também está ativo
+
+Os seguintes anúncios **não** são afetados intencionalmente: mensagens de erro, feedback de favoritos (adicionado / já na lista), resultados do reconhecimento musical e notificações de atualização.
+
+A definição pode ser alternada em Menu NVDA → Preferências → Definições → FreeRadio, ou em tempo real através de um gesto de entrada não atribuído (atribua um em Menu NVDA → Preferências → Definir comandos → FreeRadio). Quando alternada, o NVDA anuncia uma vez "Notificações silenciadas" ou "Notificações reativadas" para confirmar a alteração.
 
 ## Anúncio Automático de Mudanças de Faixa
 

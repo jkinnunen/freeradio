@@ -6,6 +6,21 @@ FreeRadio is an internet radio add-on for the NVDA screen reader. Its primary go
 
 FreeRadio uses the [Radio Browser](https://www.radio-browser.info/) open database for its station catalogue. Radio Browser is a community-managed, free directory hosting more than 50,000 internet radio stations from around the world. No registration or account is required and its API is open to everyone. Each station includes address, country, genre, language and bitrate information; stations are ranked by user votes. FreeRadio connects to this API through mirror servers located in Germany, the Netherlands and Austria; if one server is unreachable, it automatically switches to the next.
 
+## Adding a Station to Radio Browser
+
+If a station you are looking for is not in the Radio Browser directory, you can submit it yourself at [https://www.radio-browser.info/add](https://www.radio-browser.info/add). No account or registration is needed.
+
+Fill in the form on that page:
+
+- **Stream URL** *(required)* — the direct URL of the audio stream, ending in `.mp3`, `.aac`, `.ogg` or similar. This is not the station website address; it is the raw stream address you would paste into a media player. Most stations publish their stream URL on their website or in their "Listen live" section.
+- **Station name** *(required)* — the name of the station as it should appear in the directory.
+- **Homepage** — the station's website address.
+- **Country and language** — select the country and the broadcast language from the dropdown lists.
+- **Tags** — genre or topic keywords separated by commas, for example `news`, `jazz`, `classical`. These are used for searching and filtering.
+- **Logo URL** — a direct link to the station's logo image, if available.
+
+After submitting, the station is reviewed and added to the public directory. Once accepted it will appear in FreeRadio's search and country listings automatically, since the directory is refreshed from the live API.
+
 ## Requirements
 
 - NVDA 2024.1 or later

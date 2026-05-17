@@ -1165,7 +1165,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			ui.message(_("Could not open recordings folder: %s") % str(e))
 
 	@script(
-		description=_("Toggle mute notifications (station changes, playback, recording)"),
+		description=_("Toggle mute notifications (station changes, playback, recording, volume level)"),
 		category=_("FreeRadio"),
 		# No gesture assigned by default; bind one via NVDA's Input Gestures dialog.
 	)

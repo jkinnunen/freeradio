@@ -6,6 +6,21 @@ FreeRadio, ekran okuyucu NVDA için geliştirilmiş bir internet radyo eklentisi
 
 FreeRadio, istasyon kataloğu için [Radio Browser](https://www.radio-browser.info/) açık veritabanını kullanır. Radio Browser; dünya genelinde 50.000'i aşkın internet radyo istasyonunu barındıran, topluluk tarafından yönetilen ücretsiz bir dizindir. Kayıt veya hesap gerektirmez ve API'si herkese açıktır. Her istasyon için adres, ülke, tür, dil ve bit hızı bilgileri mevcuttur; istasyonlar kullanıcı oylarıyla sıralanır. FreeRadio bu API'ye Almanya, Hollanda ve Avusturya'da bulunan yansı sunucuları üzerinden bağlanır; bir sunucuya ulaşılamazsa otomatik olarak bir sonrakine geçer.
 
+## Radio Browser'a İstasyon Ekleme
+
+Aradığınız istasyon Radio Browser dizininde yoksa [https://www.radio-browser.info/add](https://www.radio-browser.info/add) adresinden kendiniz ekleyebilirsiniz. Hesap veya kayıt gerekmez.
+
+Sayfadaki formu doldurun:
+
+- **Akış adresi (Stream URL)** *(zorunlu)* — `.mp3`, `.aac`, `.ogg` gibi bir uzantıyla biten doğrudan ses akışı adresi. Bu, istasyonun web sitesi adresi değil; bir medya oynatıcısına yapıştıracağınız ham akış adresidir. Çoğu istasyon akış adresini web sitesinde veya "Canlı Dinle" bölümünde yayınlar.
+- **İstasyon adı** *(zorunlu)* — istasyonun dizinde görünmesini istediğiniz adı.
+- **Ana sayfa** — istasyonun web sitesi adresi.
+- **Ülke ve dil** — açılır listelerden yayın ülkesini ve dilini seçin.
+- **Etiketler** — virgülle ayrılmış tür veya konu etiketleri; örneğin `haber`, `caz`, `klasik`. Arama ve filtreleme için kullanılır.
+- **Logo adresi** — varsa istasyon logosunun doğrudan bağlantısı.
+
+Gönderildikten sonra istasyon incelenerek dizine eklenir. Kabul edildikten sonra FreeRadio'nun arama sonuçlarında ve ülke listelerinde otomatik olarak görünür; dizin her zaman canlı API'den yüklenir.
+
 ## Gereksinimler
 
 - NVDA 2024.1 veya üzeri
