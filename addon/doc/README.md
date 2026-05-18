@@ -129,7 +129,7 @@ To delete a station from the favourites list, select it and press the **Delete S
 
 ### Reordering Favourites
 
-With a station selected in the Favourites tab, press `*` to enter move mode — you will hear a beep. Navigate to the target position with the arrow keys, then press `*` again. The station is placed at the chosen position and the new order is saved immediately. Pressing `*` again at the same position cancels the move.
+With a station selected in the Favourites tab, press `comma` to enter move mode — you will hear a beep. Navigate to the target position with the arrow keys, then press `comma` again. The station is placed at the chosen position and the new order is saved immediately. Pressing `comma` again at the same position cancels the move.
 
 ### Adding a Custom Station
 

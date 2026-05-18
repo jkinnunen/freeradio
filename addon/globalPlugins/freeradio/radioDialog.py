@@ -12,7 +12,8 @@ import sys
 import threading
 import ui
 import wx
-import winsound  # Added for sound effects
+import winsound
+import gui
 
 _ = _tr
 del _tr
@@ -239,8 +240,19 @@ class RadioDialog(wx.Dialog):
 		wx.CallAfter(self._search.SetFocus)
 
 	def focus_favorites(self):
-		"""Switch to the Favorites tab and give the list focus."""
-		self._notebook.SetSelection(1)  # Favourites tab index
+		"""Switch to the Favorites tab and give the list focus.
+
+		Guard against being called while the dialog is hidden or the notebook
+		HWND has not yet been (re)created.  SetSelection on an orphaned notebook
+		triggers a C++ wxAssertionError because the internal page list and the
+		Win32 tab-control item count are out of sync.
+		"""
+		if not self or not self.IsShown():
+			return
+		try:
+			self._notebook.SetSelection(1)  # Favourites tab index
+		except Exception:
+			return
 		self._refresh_fav_list()
 		favs = self._manager.get_favorites()
 		if favs and self._fav_list.GetSelection() == wx.NOT_FOUND:
@@ -248,16 +260,32 @@ class RadioDialog(wx.Dialog):
 		self._fav_list.SetFocus()
 
 	def focus_search(self):
-		"""Switch to the All Stations tab and focus on the search box."""
-		self._notebook.SetSelection(0)
+		"""Switch to the All Stations tab and focus on the search box.
+
+		Guard against being called while the dialog is hidden; see focus_favorites.
+		"""
+		if not self or not self.IsShown():
+			return
+		try:
+			self._notebook.SetSelection(0)
+		except Exception:
+			return
 		self._search.SetFocus()
 		self._search.SelectAll()
 
 	def focus_tab(self, tab_index):
 		"""Switch to the specified tab and focus on the first focusable item.
-		Indices: 0=All Stations, 1=Favourites, 2=Recording, 3=Timer, 4=Liked Songs."""
-		self._notebook.SetSelection(tab_index)
-		# Go to the first focusable control of each tab
+		Indices: 0=All Stations, 1=Favourites, 2=Recording, 3=Timer, 4=Liked Songs.
+
+		Guard against being called while the dialog is hidden; see focus_favorites.
+		"""
+		if not self or not self.IsShown():
+			return
+		try:
+			self._notebook.SetSelection(tab_index)
+		except Exception:
+			return
+		# Move focus to the first focusable child of the selected panel.
 		panel = self._notebook.GetPage(tab_index)
 		for child in panel.GetChildren():
 			if child.AcceptsFocus() and child.IsEnabled() and child.IsShown():
@@ -647,7 +675,7 @@ class RadioDialog(wx.Dialog):
 		if self._fav_list.GetSelection() == wx.NOT_FOUND and self._fav_list.GetCount() > 0:
 			self._fav_list.SetSelection(0)
 		if not getattr(self, "_tab_just_switched", False):
-			ui.message(_("Press * to pick a station, navigate to the target position, then press * again to drop."))
+			ui.message(_("Press comma to pick a station, navigate to the target position, then press comma again to drop."))
 		self._tab_just_switched = False
 		event.Skip()
 
@@ -1694,13 +1722,16 @@ class RadioDialog(wx.Dialog):
 
 	def _on_close_btn(self, event):
 		self.Hide()
+		gui.mainFrame.postPopup()
 
 	def _on_window_close(self, event):
 		self.Hide()
+		gui.mainFrame.postPopup()
 
 	def _force_destroy(self):
 		self.Bind(wx.EVT_CLOSE, None)
 		self.Destroy()
+		gui.mainFrame.postPopup()
 
 
 	def _on_button_focused(self, event):
@@ -1743,9 +1774,10 @@ class RadioDialog(wx.Dialog):
 
 		if key == wx.WXK_ESCAPE:
 			self.Hide()
+			gui.mainFrame.postPopup()
 			return
 
-		if key == ord("*") and focused == self._fav_list:
+		if key == ord(",") and focused == self._fav_list:
 			self._handle_fav_move_x()
 			return
 
@@ -1863,6 +1895,7 @@ class RadioDialog(wx.Dialog):
 				return
 			if focused == self._close_btn:
 				self.Hide()
+				gui.mainFrame.postPopup()
 				return
 			if focused in (self._all_list, self._fav_list):
 				station, idx = self._get_selected_station()
@@ -1919,6 +1952,7 @@ class RadioDialog(wx.Dialog):
 				return
 			if key == ord("K"):
 				self.Hide()
+				gui.mainFrame.postPopup()
 				return
 			# Numeric tab shortcuts: Alt+1..5 switch to the corresponding tab.
 			# Tab order: 1=All Stations, 2=Favourites, 3=Recording, 4=Timer, 5=Liked Songs
@@ -1976,7 +2010,7 @@ class RadioDialog(wx.Dialog):
 			self._moving_station_index = idx
 			station_name = filtered[idx].get("name", "").strip()
 			winsound.Beep(440, 100)  # Mid tone: item picked
-			ui.message(_("%s selected. Navigate to the target position and press * again to drop.") % station_name)
+			ui.message(_("%s selected. Navigate to the target position and press comma again to drop.") % station_name)
 
 		else:
 			if self._moving_station_index == idx:

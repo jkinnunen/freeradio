@@ -1179,6 +1179,27 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			ui.message(_("Notifications unmuted"))
 
 	def _open_dialog(self):
+		# If a dialog instance exists but its underlying wx object is no longer
+		# valid (bool(wx_object) returns False when the C++ peer has been
+		# destroyed) or its notebook has become corrupted (which happens when a
+		# wxAssertionError fires inside a BookCtrlEvent handler and leaves the
+		# Win32 tab-control out of sync), destroy it and start fresh.  Without
+		# this check the dialog silently fails to appear on subsequent hotkey
+		# presses because Show() is called on a zombie object.
+		if self._dialog is not None:
+			notebook_ok = False
+			try:
+				notebook_ok = bool(self._dialog) and self._dialog._notebook.GetPageCount() > 0
+			except Exception:
+				pass
+			if not notebook_ok:
+				try:
+					self._dialog.Bind(wx.EVT_CLOSE, None)
+					self._dialog.Destroy()
+				except Exception:
+					pass
+				self._dialog = None
+
 		if self._dialog is None:
 			from .radioDialog import RadioDialog
 			gui.mainFrame.prePopup()
@@ -1192,21 +1213,42 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				plugin=self,
 			)
 		if not self._dialog.IsShown():
+			# prePopup() was called once when the dialog was first created.  Every
+			# time the dialog is hidden, radioDialog calls postPopup() to balance it.
+			# So each re-show needs a matching prePopup() call.
+			gui.mainFrame.prePopup()
 			self._dialog.Show()
 		self._dialog.Raise()
 
 	def _open_dialog_on_favorites(self):
+		"""Open the dialog and switch to the Favourites tab.
+
+		_open_dialog() calls Show() synchronously, but the notebook HWND may not
+		be fully re-realized by the time the next line executes.  Wrapping the
+		focus call in wx.CallAfter defers it to the next event-loop iteration,
+		by which point the window is guaranteed to be visible and its controls
+		have valid Win32 handles.  focus_favorites also guards against a hidden
+		dialog as a second line of defence.
+		"""
 		self._open_dialog()
 		if self._dialog:
 			wx.CallAfter(self._dialog.focus_favorites)
 
 	def _open_dialog_on_search(self):
+		"""Open the dialog and switch to the All Stations tab / search box.
+
+		Same deferred-focus rationale as _open_dialog_on_favorites.
+		"""
 		self._open_dialog()
 		if self._dialog:
 			wx.CallAfter(self._dialog.focus_search)
 
 	def _open_dialog_on_tab(self, tab_index):
-		"""Open the dialog and switch to the given tab (0=All, 1=Favs, 2=Rec, 3=Timer, 4=Liked Songs)."""
+		"""Open the dialog and switch to the given tab.
+		Indices: 0=All Stations, 1=Favourites, 2=Recording, 3=Timer, 4=Liked Songs.
+
+		Same deferred-focus rationale as _open_dialog_on_favorites.
+		"""
 		self._open_dialog()
 		if self._dialog:
 			wx.CallAfter(self._dialog.focus_tab, tab_index)

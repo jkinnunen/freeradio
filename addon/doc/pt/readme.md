@@ -131,7 +131,7 @@ Para eliminar uma estação da lista de favoritos, selecione-a e prima o botão 
 
 ### Reordenar Favoritos
 
-Com uma estação selecionada no separador Favoritos, prima `*` para entrar no modo de mover — ouvirá um sinal sonoro. Navegue até à posição pretendida com as teclas de seta e prima `*` novamente. A estação é colocada na posição escolhida e a nova ordem é guardada imediatamente. Premir `*` novamente na mesma posição cancela a operação.
+Com uma estação selecionada no separador Favoritos, prima `vírgula` para entrar no modo de mover — ouvirá um sinal sonoro. Navegue até à posição pretendida com as teclas de seta e prima `vírgula` novamente. A estação é colocada na posição escolhida e a nova ordem é guardada imediatamente. Premir `vírgula` novamente na mesma posição cancela a operação.
 
 ### Adicionar Estação Personalizada
 
